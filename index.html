@@ -44,7 +44,7 @@
       position: relative;
     }
 
-    /* 🔴 立體紅色滾動地板背景（投影端風格） */
+    /* 🔴 立體紅色滾動地板背景 */
     .bg-grid {
       position: fixed;
       inset: 0;
@@ -345,7 +345,7 @@
       margin-top: 2px;
     }
 
-    /* 投影端：全螢幕中獎者彈出卡 */
+    /* 投影端：全螢幕中獎者卡片 */
     .win-overlay {
       position: absolute;
       inset: 0;
@@ -632,4 +632,1303 @@
       pointer-events: none;
     }
 
-    @keyf
+    @keyframes flash-pop {
+      0% { opacity: 0; }
+      30% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* 5. 冒險島 / 瑪利歐風 */
+    .adventure-scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      background: linear-gradient(#4fc3ff, #8bd8ff 40%, #0000aa 40%, #000044);
+    }
+
+    .adv-sky {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      right: 10%;
+      height: 60px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 22px;
+      opacity: 0.9;
+    }
+
+    .adventure-ground {
+      width: 100%;
+      height: 26%;
+      background: repeating-linear-gradient(
+        -45deg,
+        #663300,
+        #663300 8px,
+        #884400 8px,
+        #884400 16px
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .adv-brick-row {
+      position: absolute;
+      top: -40px;
+      left: 15%;
+      width: 70%;
+      height: 40px;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          #cc6600 0,
+          #cc6600 20px,
+          #aa4400 20px,
+          #aa4400 40px
+        );
+      border: 3px solid #000;
+    }
+
+    .adventure-runner {
+      position: absolute;
+      left: 5%;
+      bottom: 38%;
+      font-size: 26px;
+    }
+
+    .adventure-runner.run {
+      animation: adv-run 6s linear infinite;
+    }
+
+    @keyframes adv-run {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(80vw); }
+    }
+
+    .adv-block {
+      position: absolute;
+      left: 50%;
+      top: -56px;
+      width: 40px;
+      height: 40px;
+      background: #ffcc00;
+      border: 3px solid #000;
+      box-shadow: 0 0 0 3px #ff8800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-pixel);
+      font-size: 14px;
+      color: #000;
+    }
+
+    .adv-prize {
+      position: absolute;
+      left: 50%;
+      top: -90px;
+      transform: translateX(-50%);
+      font-size: 18px;
+      opacity: 0;
+      animation: adv-prize-pop 1s ease-out forwards;
+    }
+
+    @keyframes adv-prize-pop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -10px);
+      }
+    }
+
+    .adv-jump {
+      animation: adv-jump 0.8s ease-out forwards;
+    }
+
+    @keyframes adv-jump {
+      0% {
+        transform: translateX(0) translateY(0);
+      }
+      50% {
+        transform: translateX(30vw) translateY(-40px);
+      }
+      100% {
+        transform: translateX(60vw) translateY(0);
+      }
+    }
+
+    /* 6. 太空射擊 / 空戰 */
+    .shooter-scene {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: linear-gradient(#2c80ff, #0b3ba0);
+    }
+
+    .shooter-wave {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2), transparent 40%),
+        radial-gradient(circle at 80% 40%, rgba(255,255,255,0.2), transparent 40%);
+      opacity: 0.7;
+    }
+
+    .shooter-ship {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 30px;
+    }
+
+    .shooter-ship.move {
+      animation: ship-move 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes ship-move {
+      0% { transform: translateX(-40vw); }
+      100% { transform: translateX(40vw); }
+    }
+
+    .shooter-target {
+      position: absolute;
+      top: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 32px;
+    }
+
+    .laser {
+      position: absolute;
+      width: 4px;
+      height: 20px;
+      background: #00ffff;
+      box-shadow: 0 0 8px #00ffff;
+      bottom: 14%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .laser.fly {
+      animation: laser-fly 0.8s linear forwards;
+    }
+
+    @keyframes laser-fly {
+      0% { bottom: 14%; }
+      100% { bottom: 72%; }
+    }
+
+    .target-hit {
+      animation: target-blast 0.45s steps(2) 3;
+    }
+
+    @keyframes target-blast {
+      0% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(-50%) scale(1.6);
+        opacity: 0;
+      }
+    }
+
+    /* 7. 幸運轉盤 Retro Wheel */
+    .wheel-scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wheel {
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 6px solid #ffffff;
+      box-shadow: 0 0 0 4px #ff5555;
+      background-image: conic-gradient(
+        #ff5555 0deg 45deg,
+        #ffaa00 45deg 90deg,
+        #33ccff 90deg 135deg,
+        #66ff66 135deg 180deg,
+        #ff66cc 180deg 225deg,
+        #ffff66 225deg 270deg,
+        #ff9966 270deg 315deg,
+        #66ccff 315deg 360deg
+      );
+      position: relative;
+    }
+
+    .wheel.fast {
+      animation: wheel-fast 2s linear infinite;
+    }
+
+    .wheel.slow {
+      animation: wheel-slow 3s ease-out forwards;
+    }
+
+    @keyframes wheel-fast {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(720deg); }
+    }
+
+    @keyframes wheel-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .wheel-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-pixel);
+      font-size: 11px;
+      text-align: center;
+      text-shadow: 0 0 6px #000;
+    }
+
+    .pointer {
+      position: absolute;
+      top: calc(50% - 140px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-bottom: 24px solid #ffffff;
+      filter: drop-shadow(0 0 4px #ffffff);
+    }
+
+    /* 8. 塔羅翻牌 Tarot */
+    .tarot-scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: radial-gradient(circle at top, #220022, #050010);
+    }
+
+    .tarot-card {
+      width: 90px;
+      height: 140px;
+      border-radius: 6px;
+      border: 4px solid #ffffff;
+      background: #111133;
+      position: relative;
+      transform-style: preserve-3d;
+      transform-origin: center;
+      transition: transform 0.8s ease-out;
+    }
+
+    .tarot-card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-pixel);
+      font-size: 10px;
+    }
+
+    .tarot-back {
+      background: repeating-linear-gradient(
+        45deg,
+        #660000,
+        #660000 8px,
+        #cc0000 8px,
+        #cc0000 16px
+      );
+    }
+
+    .tarot-front {
+      transform: rotateY(180deg);
+      background: #222244;
+      border-radius: 4px;
+      border: 2px solid #ffd700;
+      text-align: center;
+      padding: 6px;
+    }
+
+    .tarot-card.flip {
+      transform: rotateY(180deg);
+    }
+
+    .tarot-card.shuffle {
+      animation: tarot-shuffle 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes tarot-shuffle {
+      0% { transform: translateY(0) rotateZ(0deg); }
+      100% { transform: translateY(-6px) rotateZ(3deg); }
+    }
+
+    /* 公用錯誤訊息 */
+    .error-message {
+      color: #ffaaaa;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* 小螢幕適應 */
+    @media (max-width: 900px) {
+      .row {
+        flex-direction: column;
+        height: auto;
+      }
+      .col-left,
+      .col-right {
+        flex: none;
+        height: auto;
+      }
+      #animationArea {
+        height: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <!-- 投影端 / 控制台 -->
+  <div class="layout" id="adminLayout" style="display:none;">
+    <div class="header">🏆 家防中心尾牙盛典 - 8-Bit PIXEL LOTTERY</div>
+    <div class="sub-header">
+      <span class="tag">HOST CONSOLE</span>
+      <span class="small">用 <strong>?mode=player</strong> 讓大家用手機加入抽獎</span>
+    </div>
+    <div class="row">
+      <div class="col-left">
+        <div id="animationArea" class="pixel-frame"></div>
+      </div>
+      <div class="col-right">
+        <!-- 控制與 QRCode -->
+        <div class="pixel-frame" style="margin-bottom:8px;">
+          <div style="font-family:var(--font-pixel);font-size:10px;margin-bottom:4px;">
+            🎮 抽獎控制
+          </div>
+
+          <!-- 🔳 QR 區塊 -->
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <div id="qrCode" style="width:96px;height:96px;background:#000;"></div>
+            <div class="small">
+              手機掃描 QR Code 加入抽獎：<br />
+              <span id="qrLinkText" style="word-break:break-all;"></span>
+            </div>
+          </div>
+
+          <label>遊戲模式：</label>
+          <select id="modeSelect" class="pixel-select">
+            <option value="race">1. 像素賽車 (Race)</option>
+            <option value="slots">2. 黃金拉霸 (Slots)</option>
+            <option value="claw">3. 夾娃娃機 (Claw)</option>
+            <option value="meteor">4. 流星撞擊 (Meteor)</option>
+            <option value="adventure">5. 冒險島 (Adventure)</option>
+            <option value="shooter">6. 太空射擊 (Shooter)</option>
+            <option value="wheel">7. 幸運轉盤 (Retro)</option>
+            <option value="tarot">8. 塔羅翻牌 (Magic)</option>
+          </select>
+
+          <label>本輪要抽出人數（連抽）：</label>
+          <input
+            id="countInput"
+            type="number"
+            min="1"
+            max="50"
+            value="1"
+            class="pixel-input"
+          />
+
+          <button id="startButton" class="pixel-btn">▶ START DRAW</button>
+          <button id="resetButton" class="pixel-btn" style="background:#660000;">
+            ⟳ RESET 活動
+          </button>
+
+          <div id="adminError" class="error-message"></div>
+          <div style="margin-top:6px;" class="small">
+            抽獎流程：啟動 5–8 秒 → 揭曉 2 秒 → 恭喜 5 秒（每輪自動串接）
+          </div>
+        </div>
+
+        <!-- 玩家列表 -->
+        <div class="pixel-frame status-panel">
+          <h3>👥 玩家列表</h3>
+          <ul id="playersList"></ul>
+          <h3 style="margin-top:6px;">✨ 已中獎</h3>
+          <ul id="winnersList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 手機端玩家畫面 -->
+  <div class="layout" id="playerLayout" style="display:none;">
+    <div class="player-layout">
+      <div class="header">🏆 家防中心尾牙盛典</div>
+      <div class="sub-header">手機端玩家入口</div>
+
+      <div id="playerJoinPanel" class="pixel-frame" style="min-width:260px;">
+        <div style="font-size:14px;margin-bottom:6px;">
+          輸入您的名稱以加入抽獎
+        </div>
+        <input
+          type="text"
+          id="playerNameInput"
+          class="pixel-input"
+          placeholder="範例：小明（社工組）"
+        />
+        <button id="playerJoinButton" class="pixel-btn">JOIN</button>
+        <div id="playerJoinError" class="error-message"></div>
+        <div class="small" style="margin-top:4px;">
+          若被主持人重置活動，系統會自動登出，需要重新加入。
+        </div>
+      </div>
+
+      <div id="playerInfoPanel" class="pixel-frame" style="display:none;min-width:260px;">
+        <div>您的抽獎編號：</div>
+        <div id="playerNo" class="player-no"></div>
+        <div id="playerName" class="player-name"></div>
+        <div id="playerStatus" class="player-status">
+          ⏳ 已加入抽獎，請等待主持人啟動遊戲…
+        </div>
+        <div id="playerWinBanner" class="win-banner" style="display:none;">
+          🎉 恭喜中獎！🎉
+        </div>
+        <button id="playerLeaveButton" class="pixel-btn">
+          EXIT / 重新登入
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 手機端全螢幕中獎視窗 -->
+  <div id="playerWinOverlay" class="player-win-overlay" style="display:none;">
+    <div class="player-win-card">
+      <div class="title">CONGRATS WINNER!</div>
+      <div class="no" id="playerWinOverlayNo"></div>
+      <div class="name" id="playerWinOverlayName"></div>
+      <div class="sub">請依主持人指示上台領獎 🎁</div>
+    </div>
+  </div>
+
+  <!-- Socket.io + QRCode -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    // --- 共用工具 ---
+    function getQueryParam(key) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(key);
+    }
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    // 🔧 安全建立 socket，避免 io 未載入時整支 JS 掛掉
+    let socket;
+    if (typeof io !== "undefined") {
+      socket = io();
+    } else {
+      console.error(
+        "socket.io client not loaded. 請確認是透過 Node 伺服器 (server.js) 啟動，而不是直接開 index.html 或純靜態部署。"
+      );
+      socket = { on() {}, emit() {} }; // 假 socket，畫面可正常顯示
+    }
+
+    // --- 模式切換 ---
+    const mode = getQueryParam("mode");
+    const adminLayout = document.getElementById("adminLayout");
+    const playerLayout = document.getElementById("playerLayout");
+
+    if (mode === "admin") {
+      adminLayout.style.display = "block";
+      setupAdmin();
+    } else {
+      playerLayout.style.display = "block";
+      setupPlayer();
+    }
+
+    // ===========================================================
+    // 玩家端邏輯
+    // ===========================================================
+    function setupPlayer() {
+      const playerNameInput = document.getElementById("playerNameInput");
+      const playerJoinButton = document.getElementById("playerJoinButton");
+      const playerJoinError = document.getElementById("playerJoinError");
+      const playerJoinPanel = document.getElementById("playerJoinPanel");
+      const playerInfoPanel = document.getElementById("playerInfoPanel");
+      const playerNoEl = document.getElementById("playerNo");
+      const playerNameEl = document.getElementById("playerName");
+      const playerStatusEl = document.getElementById("playerStatus");
+      const playerWinBanner = document.getElementById("playerWinBanner");
+      const playerLeaveButton = document.getElementById("playerLeaveButton");
+
+      const playerWinOverlay = document.getElementById("playerWinOverlay");
+      const playerWinOverlayNo = document.getElementById("playerWinOverlayNo");
+      const playerWinOverlayName = document.getElementById("playerWinOverlayName");
+
+      let joined = false;
+
+      function resetToJoin() {
+        joined = false;
+        playerJoinPanel.style.display = "block";
+        playerInfoPanel.style.display = "none";
+        playerJoinError.textContent = "";
+        playerNameInput.value = "";
+        playerWinBanner.style.display = "none";
+        playerWinOverlay.style.display = "none";
+      }
+
+      playerJoinButton.addEventListener("click", () => {
+        const name = playerNameInput.value.trim();
+        if (!name) {
+          playerJoinError.textContent = "請先輸入名稱";
+          return;
+        }
+        playerJoinError.textContent = "連線中…";
+
+        socket.emit("join", { name }, (res) => {
+          if (!res || !res.success) {
+            playerJoinError.textContent =
+              (res && res.message) || "加入失敗，請稍後再試";
+            return;
+          }
+          joined = true;
+          playerJoinPanel.style.display = "none";
+          playerInfoPanel.style.display = "block";
+          playerJoinError.textContent = "";
+          playerNoEl.textContent = res.no;
+          playerNameEl.textContent = res.name;
+          playerStatusEl.textContent =
+            "⏳ 已加入抽獎，請等待主持人啟動遊戲…";
+          playerWinBanner.style.display = "none";
+        });
+      });
+
+      playerLeaveButton.addEventListener("click", () => {
+        resetToJoin();
+      });
+
+      // 被主持人重置 → 強制登出
+      socket.on("force-logout", () => {
+        resetToJoin();
+      });
+
+      // 中獎公告給玩家
+      socket.on("you-win", (data) => {
+        if (!joined) return;
+        const myNo = playerNoEl.textContent;
+        if (data && data.no === myNo) {
+          playerStatusEl.textContent = "🎉 恭喜！您已中獎！";
+          playerWinBanner.style.display = "block";
+
+          // 全螢幕中獎畫面
+          playerWinOverlayNo.textContent = data.no;
+          playerWinOverlayName.textContent = data.name;
+          playerWinOverlay.style.display = "flex";
+
+          // 點螢幕關閉
+          playerWinOverlay.onclick = () => {
+            playerWinOverlay.style.display = "none";
+          };
+        }
+      });
+    }
+
+    // ===========================================================
+    // 主持人 / 投影端邏輯
+    // ===========================================================
+    function setupAdmin() {
+      const modeSelect = document.getElementById("modeSelect");
+      const countInput = document.getElementById("countInput");
+      const startButton = document.getElementById("startButton");
+      const resetButton = document.getElementById("resetButton");
+      const adminError = document.getElementById("adminError");
+      const playersList = document.getElementById("playersList");
+      const winnersList = document.getElementById("winnersList");
+      const animationArea = document.getElementById("animationArea");
+
+      // 產生玩家加入用 QR Code
+      const joinUrl = `${window.location.origin}/?mode=player`;
+      const qrLinkText = document.getElementById("qrLinkText");
+      const qrCodeContainer = document.getElementById("qrCode");
+
+      if (qrLinkText) {
+        qrLinkText.textContent = joinUrl;
+      }
+      if (qrCodeContainer && typeof QRCode !== "undefined") {
+        qrCodeContainer.innerHTML = "";
+        new QRCode(qrCodeContainer, {
+          text: joinUrl,
+          width: 96,
+          height: 96,
+          colorDark: "#ffffff",
+          colorLight: "#2b0000",
+          correctLevel: QRCode.CorrectLevel.H,
+        });
+      }
+
+      let isDrawing = false;
+
+      startButton.addEventListener("click", async () => {
+        if (isDrawing) return;
+        const mode = modeSelect.value;
+        const count = parseInt(countInput.value, 10) || 0;
+        if (count <= 0) {
+          adminError.textContent = "請輸入要抽出的人數（至少 1 人）";
+          return;
+        }
+        adminError.textContent = "";
+        isDrawing = true;
+        startButton.textContent = "DRAWING…";
+        try {
+          await runDrawSequence({ mode, count, animationArea, adminError });
+        } finally {
+          isDrawing = false;
+          startButton.textContent = "▶ START DRAW";
+        }
+      });
+
+      resetButton.addEventListener("click", () => {
+        if (!confirm("確定要重置整個活動？所有玩家與中獎紀錄都會清除。")) {
+          return;
+        }
+        socket.emit("reset-activity");
+        adminError.textContent = "已送出重置指令，玩家將被強制登出。";
+      });
+
+      // 更新玩家/中獎列表
+      socket.on("players-updated", (data) => {
+        playersList.innerHTML = "";
+        winnersList.innerHTML = "";
+        const players = data && data.players ? data.players : [];
+        const winners = new Set(data && data.winners ? data.winners : []);
+
+        players.forEach((p) => {
+          const li = document.createElement("li");
+          const isWinner = winners.has(p.no);
+          li.textContent = `${p.no} - ${p.name}`;
+          if (isWinner) {
+            li.style.color = "#ffd700";
+          }
+          playersList.appendChild(li);
+        });
+
+        winners.forEach((no) => {
+          const li = document.createElement("li");
+          const player = players.find((p) => p.no === no);
+          if (player) {
+            li.textContent = `${player.no} - ${player.name}`;
+          } else {
+            li.textContent = no;
+          }
+          winnersList.appendChild(li);
+        });
+      });
+    }
+
+    // ===========================================================
+    // 抽獎序列：連抽 N 人
+    // ===========================================================
+    async function runDrawSequence({ mode, count, animationArea, adminError }) {
+      for (let i = 1; i <= count; i++) {
+        const winner = await requestWinnerFromServer();
+        if (!winner) {
+          adminError.textContent = "可抽玩家不足，無法繼續抽獎。";
+          break;
+        }
+        adminError.textContent = "";
+        await runSingleAnimationRound({
+          animationArea,
+          mode,
+          winner,
+          roundIndex: i,
+          roundTotal: count,
+        });
+      }
+    }
+
+    function requestWinnerFromServer() {
+      return new Promise((resolve) => {
+        socket.emit("request-winner", {}, (res) => {
+          if (!res || !res.success || !res.winner) {
+            resolve(null);
+          } else {
+            resolve(res.winner);
+          }
+        });
+      });
+    }
+
+    // ===========================================================
+    // 單輪動畫（含 8 種模式）
+    // ===========================================================
+    async function runSingleAnimationRound({
+      animationArea,
+      mode,
+      winner,
+      roundIndex,
+      roundTotal,
+    }) {
+      animationArea.innerHTML = "";
+      const root = document.createElement("div");
+      root.className = "anim-root";
+      animationArea.appendChild(root);
+
+      const title = document.createElement("div");
+      title.className = "anim-title";
+      title.textContent = getModeTitle(mode) + ` (${roundIndex}/${roundTotal})`;
+      root.appendChild(title);
+
+      const phaseLabel = document.createElement("div");
+      phaseLabel.className = "anim-phase-label";
+      phaseLabel.textContent = "START";
+      root.appendChild(phaseLabel);
+
+      const winnerDisplay = document.createElement("div");
+      winnerDisplay.className = "winner-display";
+      winnerDisplay.innerHTML = `
+        <div class="no">${winner.no}</div>
+        <div class="name">${winner.name}</div>
+      `;
+      winnerDisplay.style.opacity = "0";
+      root.appendChild(winnerDisplay);
+
+      // 全螢幕 winner overlay（投影端）
+      const winOverlay = document.createElement("div");
+      winOverlay.className = "win-overlay";
+      winOverlay.innerHTML = `
+        <div class="win-overlay-card">
+          <div class="title">WINNER!</div>
+          <div class="no">${winner.no}</div>
+          <div class="name">${winner.name}</div>
+          <div class="sub">請上台領取獎品 🎁</div>
+        </div>
+      `;
+      root.appendChild(winOverlay);
+
+      // Start phase
+      await playStartPhase(root, mode, phaseLabel);
+
+      // Reveal phase
+      phaseLabel.textContent = "REVEAL";
+      await playRevealPhase(root, mode, winner, winnerDisplay);
+
+      // Congrats phase：顯示底部 + 全螢幕卡
+      phaseLabel.textContent = "CONGRATS";
+      winnerDisplay.style.opacity = "1";
+      winOverlay.style.opacity = "1";
+      await sleep(5000);
+    }
+
+    function getModeTitle(mode) {
+      switch (mode) {
+        case "race": return "像素賽車 RACE";
+        case "slots": return "黃金拉霸 SLOTS";
+        case "claw": return "夾娃娃機 CLAW";
+        case "meteor": return "流星撞擊 METEOR";
+        case "adventure": return "冒險島 ADVENTURE";
+        case "shooter": return "太空射擊 SHOOTER";
+        case "wheel": return "幸運轉盤 RETRO WHEEL";
+        case "tarot": return "塔羅翻牌 MAGIC";
+        default: return "LOTTERY";
+      }
+    }
+
+    // ----------------- START PHASE -----------------
+    async function playStartPhase(root, mode, phaseLabel) {
+      phaseLabel.textContent = "START";
+      switch (mode) {
+        case "race":
+          setupRaceScene(root, false);
+          await sleep(8000);
+          break;
+        case "slots":
+          await setupSlotsScene(root, true);
+          await sleep(6000);
+          break;
+        case "claw":
+          await setupClawScene(root, "start");
+          await sleep(5000);
+          break;
+        case "meteor":
+          await setupMeteorScene(root, "start");
+          await sleep(5000);
+          break;
+        case "adventure":
+          await setupAdventureScene(root, "start");
+          await sleep(6000);
+          break;
+        case "shooter":
+          await setupShooterScene(root, "start");
+          await sleep(6000);
+          break;
+        case "wheel":
+          await setupWheelScene(root, "start");
+          await sleep(5000);
+          break;
+        case "tarot":
+          await setupTarotScene(root, "start");
+          await sleep(5000);
+          break;
+        default:
+          await sleep(5000);
+      }
+    }
+
+    // ----------------- REVEAL PHASE -----------------
+    async function playRevealPhase(root, mode, winner, winnerDisplay) {
+      switch (mode) {
+        case "race":
+          finalizeRaceScene(root, winner);
+          await sleep(2000);
+          break;
+        case "slots":
+          await finalizeSlotsScene(root, winner);
+          await sleep(2000);
+          break;
+        case "claw":
+          await setupClawScene(root, "reveal", winner);
+          await sleep(2000);
+          break;
+        case "meteor":
+          await setupMeteorScene(root, "reveal", winner);
+          await sleep(2000);
+          break;
+        case "adventure":
+          await setupAdventureScene(root, "reveal", winner);
+          await sleep(2000);
+          break;
+        case "shooter":
+          await setupShooterScene(root, "reveal", winner);
+          await sleep(2000);
+          break;
+        case "wheel":
+          await setupWheelScene(root, "reveal", winner);
+          await sleep(2000);
+          break;
+        case "tarot":
+          await setupTarotScene(root, "reveal", winner);
+          await sleep(2000);
+          break;
+        default:
+          await sleep(2000);
+      }
+      winnerDisplay.style.opacity = "1";
+    }
+
+    // ===========================================================
+    // 1. 像素賽車 / 馬場風
+    // ===========================================================
+    function setupRaceScene(root, finalized) {
+      let scene = root.querySelector(".race-scene");
+      if (!scene) {
+        scene = document.createElement("div");
+        scene.className = "race-scene";
+
+        const stands = document.createElement("div");
+        stands.className = "race-stands";
+        scene.appendChild(stands);
+
+        const field = document.createElement("div");
+        field.className = "race-field";
+
+        for (let i = 0; i < 5; i++) {
+          const lane = document.createElement("div");
+          lane.className = "race-lane";
+          const car = document.createElement("div");
+          car.className = "race-car running";
+          car.textContent = i % 2 === 0 ? "🐎" : "🚗";
+          lane.appendChild(car);
+
+          const finish = document.createElement("div");
+          finish.className = "race-finish";
+          lane.appendChild(finish);
+
+          field.appendChild(lane);
+        }
+
+        const caption = document.createElement("div");
+        caption.className = "race-caption";
+        caption.textContent = "PIXEL CIRCUIT - READY!";
+        scene.appendChild(field);
+        scene.appendChild(caption);
+
+        root.appendChild(scene);
+      } else if (!finalized) {
+        scene.querySelectorAll(".race-car").forEach((car) => {
+          car.classList.add("running");
+        });
+      }
+    }
+
+    function finalizeRaceScene(root, winner) {
+      const scene = root.querySelector(".race-scene");
+      if (!scene) return;
+      const cars = scene.querySelectorAll(".race-car");
+      cars.forEach((car) => car.classList.remove("running"));
+      const winnerIndex = Math.floor(Math.random() * cars.length);
+      const winnerCar = cars[winnerIndex];
+      winnerCar.classList.add("winner");
+      winnerCar.style.transform = "translate(70vw, -50%)";
+      const caption = scene.querySelector(".race-caption");
+      if (caption) caption.textContent = `${winner.no} FINISHES FIRST!`;
+    }
+
+    // ===========================================================
+    // 2. 黃金拉霸 Slots
+    // ===========================================================
+    async function setupSlotsScene(root, spinning) {
+      let container = root.querySelector(".slots-container");
+      if (!container) {
+        container = document.createElement("div");
+        container.className = "slots-container";
+        for (let i = 0; i < 3; i++) {
+          const windowEl = document.createElement("div");
+          windowEl.className = "slot-window";
+          const strip = document.createElement("div");
+          strip.className = "slot-strip";
+          for (let j = 0; j < 6; j++) {
+            const item = document.createElement("div");
+            item.className = "slot-item";
+            item.textContent = ["⭐", "🍒", "💎", "🔔", "7️⃣", "🍀"][
+              (i + j) % 6
+            ];
+            strip.appendChild(item);
+          }
+          strip.style.transform = "translateY(0px)";
+          windowEl.appendChild(strip);
+          container.appendChild(windowEl);
+        }
+        root.appendChild(container);
+      }
+      if (spinning) {
+        const strips = container.querySelectorAll(".slot-strip");
+        strips.forEach((strip, index) => {
+          let offset = 0;
+          const start = Date.now();
+          const duration = 3800 + index * 600;
+          function tick() {
+            const now = Date.now();
+            const elapsed = now - start;
+            if (elapsed >= duration) return;
+            offset = (offset + 18) % 260;
+            strip.style.transform = `translate(-50%, ${-offset}px)`;
+            requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        });
+      }
+    }
+
+    async function finalizeSlotsScene(root, winner) {
+      const container = root.querySelector(".slots-container");
+      if (!container) return;
+      const windows = container.querySelectorAll(".slot-window");
+      windows.forEach((w) => {
+        w.classList.add("reveal");
+        const strip = w.querySelector(".slot-strip");
+        strip.innerHTML = "";
+      });
+
+      if (windows.length >= 3) {
+        const [w1, w2, w3] = windows;
+        const s1 = w1.querySelector(".slot-strip");
+        const s2 = w2.querySelector(".slot-strip");
+        const s3 = w3.querySelector(".slot-strip");
+
+        const parts = [
+          winner.no.replace("No. ", "NO."),
+          "-",
+          winner.name,
+        ];
+
+        [s1, s2, s3].forEach((strip, idx) => {
+          const item = document.createElement("div");
+          item.className = "slot-item";
+          item.style.fontSize = idx === 2 ? "14px" : "18px";
+          item.textContent = parts[idx] || "";
+          strip.appendChild(item);
+          strip.style.transform = "translate(-50%, 24px)";
+        });
+      }
+    }
+
+    // ===========================================================
+    // 3. 夾娃娃機 Claw
+    // ===========================================================
+    async function setupClawScene(root, phase, winner) {
+      let scene = root.querySelector(".claw-scene");
+      if (!scene) {
+        scene = document.createElement("div");
+        scene.className = "claw-scene";
+
+        const rail = document.createElement("div");
+        rail.className = "claw-rail";
+        scene.appendChild(rail);
+
+        const head = document.createElement("div");
+        head.className = "claw-head";
+        head.textContent = "👾";
+        scene.appendChild(head);
+
+        const pit = document.createElement("div");
+        pit.className = "claw-pit";
+        scene.appendChild(pit);
+
+        const toy = document.createElement("div");
+        toy.className = "claw-toy";
+        toy.textContent = "🎁";
+        pit.appendChild(toy);
+
+        root.appendChild(scene);
+      }
+      const head = scene.querySelector(".claw-head");
+      const toy = scene.querySelector(".claw-toy");
+
+      if (phase === "start") {
+        head.classList.add("move-horiz");
+        if (toy) toy.textContent = "🎁";
+      } else if (phase === "reveal") {
+        head.classList.remove("move-horiz");
+        await sleep(80);
+        head.style.transition = "transform 0.6s ease-out";
+        head.style.transform = "translate(40vw, 80px)";
+        await sleep(700);
+        head.style.transform = "translate(40vw, 240px)";
+        await sleep(700);
+        head.style.transform = "translate(40vw, 80px)";
+        await sleep(700);
+
+        if (toy) {
+          toy.textContent = winner ? winner.no : "???";
+          toy.style.transition = "transform 0.6s ease-out, opacity 0.6s";
+          toy.style.transform = "translate(-50%, -18px)";
+          await sleep(600);
+          toy.style.transform = "translate(-50%, 2px)";
+        }
+      }
+    }
+
+    // ===========================================================
+    // 4. 流星撞擊 Meteor
+    // ===========================================================
+    async function setupMeteorScene(root, phase, winner) {
+      let scene = root.querySelector(".meteor-scene");
+      if (!scene) {
+        scene = document.createElement("div");
+        scene.className = "meteor-scene";
+        root.appendChild(scene);
+      }
+      if (phase === "start") {
+        scene.innerHTML = "";
+        const meteor = document.createElement("div");
+        meteor.className = "meteor fly";
+        meteor.textContent = "☄️";
+        scene.appendChild(meteor);
+      } else if (phase === "reveal") {
+        scene.classList.add("shake");
+        const flash = document.createElement("div");
+        flash.className = "flash";
+        scene.appendChild(flash);
+
+        const center = document.createElement("div");
+        center.style.position = "absolute";
+        center.style.top = "50%";
+        center.style.left = "50%";
+        center.style.transform = "translate(-50%, -50%)";
+        center.style.fontFamily = "var(--font-pixel)";
+        center.style.fontSize = "18px";
+        center.textContent = winner ? winner.no : "???";
+        scene.appendChild(center);
+      }
+    }
+
+    // ===========================================================
+    // 5. 冒險島 Adventure
+    // ===========================================================
+    async function setupAdventureScene(root, phase, winner) {
+      let scene = root.querySelector(".adventure-scene");
+      if (!scene) {
+        scene = document.createElement("div");
+        scene.className = "adventure-scene";
+
+        const sky = document.createElement("div");
+        sky.className = "adv-sky";
+        sky.innerHTML = "☁️ ☁️ ☁️";
+        scene.appendChild(sky);
+
+        const ground = document.createElement("div");
+        ground.className = "adventure-ground";
+
+        const brickRow = document.createElement("div");
+        brickRow.className = "adv-brick-row";
+        const block = document.createElement("div");
+        block.className = "adv-block";
+        block.textContent = "?";
+        brickRow.appendChild(block);
+        ground.appendChild(brickRow);
+
+        const runner = document.createElement("div");
+        runner.className = "adventure-runner run";
+        runner.textContent = "🏃";
+        ground.appendChild(runner);
+
+        scene.appendChild(ground);
+        root.appendChild(scene);
+      }
+      const runner = scene.querySelector(".adventure-runner");
+
+      if (phase === "start") {
+        runner.classList.add("run");
+      } else if (phase === "reveal") {
+        runner.classList.remove("run");
+        runner.classList.add("adv-jump");
+        await sleep(600);
+        const prize = document.createElement("div");
+        prize.className = "adv-prize";
+        prize.textContent = winner ? winner.no : "???";
+        scene.appendChild(prize);
+      }
+    }
+
+    // ===========================================================
+    // 6. 太空射擊 Shooter
+    // ===========================================================
+    async function setupShooterScene(root, phase, winner) {
+      let scene = root.querySelector(".shooter-scene");
+      if (!scene) {
+        scene = document.createElement("div");
+        scene.className = "shooter-scene";
+
+        const wave = document.createElement("div");
+        wave.className = "shooter-wave";
+        scene.appendChild(wave);
+
+        const ship = document.createElement("div");
+        ship.className = "shooter-ship move";
+        ship.textContent = "✈️";
+        scene.appendChild(ship);
+
+        const target = document.createElement("div");
+        target.className = "shooter-target";
+        target.textContent = "🛩️";
+        scene.appendChild(target);
+
+        root.appendChild(scene);
+      }
+      const ship = scene.querySelector(".shooter-ship");
+      const target = scene.querySelector(".shooter-target");
+
+      if (phase === "start") {
+        ship.classList.add("move");
+      } else if (phase === "reveal") {
+        ship.classList.remove("move");
+        const laser = document.createElement("div");
+        laser.className = "laser fly";
+        scene.appendChild(laser);
+        await sleep(800);
+        target.classList.add("target-hit");
+
+        const label = document.createElement("div");
+        label.style.position = "absolute";
+        label.style.top = "24%";
+        label.style.left = "50%";
+        label.style.transform = "translateX(-50%)";
+        label.style.fontFamily = "var(--font-pixel)";
+        label.style.fontSize = "12px";
+        label.textContent = winner ? winner.no : "???";
+        scene.appendChild(label);
+      }
+    }
+
+    // ===========================================================
+    // 7. 幸運轉盤 Wheel
+    // ===========================================================
+    async function setupWheelScene(root, phase, winner) {
+      let scene = root.querySelector(".wheel-scene");
+      if (!scene) {
+        scene = document.createElement("div");
+        scene.className = "wheel-scene";
+        const wheel = document.createElement("div");
+        wheel.className = "wheel fast";
+        const label = document.createElement("div");
+        label.className = "wheel-label";
+        label.textContent = "GOOD LUCK!";
+        wheel.appendChild(label);
+        scene.appendChild(wheel);
+
+        const pointer = document.createElement("div");
+        pointer.className = "pointer";
+        scene.appendChild(pointer);
+
+        root.appendChild(scene);
+      }
+      const wheel = scene.querySelector(".wheel");
+      const label = scene.querySelector(".wheel-label");
+
+      if (phase === "start") {
+        wheel.classList.remove("slow");
+        wheel.classList.add("fast");
+        label.textContent = "SPINNING...";
+      } else if (phase === "reveal") {
+        wheel.classList.remove("fast");
+        wheel.classList.add("slow");
+        label.textContent = winner ? winner.no : "WINNER";
+      }
+    }
+
+    // ===========================================================
+    // 8. 塔羅翻牌 Tarot
+    // ===========================================================
+    async function setupTarotScene(root, phase, winner) {
+      let scene = root.querySelector(".tarot-scene");
+      if (!scene) {
+        scene = document.createElement("div");
+        scene.className = "tarot-scene";
+        for (let i = 0; i < 3; i++) {
+          const card = document.createElement("div");
+          card.className = "tarot-card";
+          const back = document.createElement("div");
+          back.className = "tarot-card-face tarot-back";
+          back.textContent = "★";
+          const front = document.createElement("div");
+          front.className = "tarot-card-face tarot-front";
+          front.innerHTML = "<div>WIN</div>";
+          card.appendChild(back);
+          card.appendChild(front);
+          scene.appendChild(card);
+        }
+        root.appendChild(scene);
+      }
+      const cards = scene.querySelectorAll(".tarot-card");
+      if (phase === "start") {
+        cards.forEach((c, idx) => {
+          if (idx === 1) c.classList.add("shuffle");
+        });
+      } else if (phase === "reveal") {
+        cards.forEach((c) => c.classList.remove("shuffle"));
+        const target = cards[1];
+        target.classList.add("flip");
+        const front = target.querySelector(".tarot-front");
+        front.innerHTML = `<div>${winner ? winner.no : "???"}</div><div style="margin-top:4px;font-size:8px;">${winner ? winner.name : ""}</div>`;
+      }
+    }
+  </script>
+</body>
+</html>
