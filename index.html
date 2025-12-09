@@ -998,6 +998,44 @@
         height: 260px;
       }
     }
+
+    /* Admin 首頁大 QR */
+    #adminLanding {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    #adminLandingTitle {
+      font-family: var(--font-pixel);
+      font-size: 16px;
+      margin-bottom: 12px;
+      text-shadow: 0 0 6px #ff8888;
+    }
+
+    #adminLandingSub {
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    #qrLandingBox {
+      width: 260px;
+      height: 260px;
+      margin: 8px auto;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #adminMainPanel {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -1008,67 +1046,77 @@
     <div class="header">🏆 家防中心尾牙盛典 - 8-Bit PIXEL LOTTERY</div>
     <div class="sub-header">
       <span class="tag">HOST CONSOLE</span>
-      <span class="small">用 <strong>?mode=player</strong> 讓大家用手機加入抽獎</span>
+      <span class="small">所有人先掃描 QRcode 加入，主持人再進入抽獎畫面</span>
     </div>
-    <div class="row">
-      <div class="col-left">
-        <div id="animationArea" class="pixel-frame"></div>
-      </div>
-      <div class="col-right">
-        <!-- 控制與 QRCode -->
-        <div class="pixel-frame" style="margin-bottom:8px;">
-          <div style="font-family:var(--font-pixel);font-size:10px;margin-bottom:4px;">
-            🎮 抽獎控制
-          </div>
 
-          <!-- 🔳 QR 區塊 -->
-          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-            <div id="qrCode" style="width:96px;height:96px;background:#000;"></div>
-            <div class="small">
-              手機掃描 QR Code 加入抽獎：<br />
-              <span id="qrLinkText" style="word-break:break-all;"></span>
+    <!-- ① 先出現：大 QRcode 首頁 -->
+    <div id="adminLanding" class="pixel-frame">
+      <div id="adminLandingTitle">JOIN THE GAME!</div>
+      <div id="adminLandingSub">
+        請拿出手機，掃描下方 QR Code 加入抽獎遊戲 👇
+      </div>
+      <div id="qrLandingBox">
+        <div id="qrCodeLanding" style="width:100%;height:100%;"></div>
+      </div>
+      <div class="small" id="qrLandingLink" style="margin-top:6px;"></div>
+      <button id="enterDrawButton" class="pixel-btn" style="margin-top:12px;">
+        ▶ 進入抽獎現場
+      </button>
+      <div class="small" style="margin-top:8px;opacity:.75;">
+        進入後仍會在側邊保留小型 QRcode，方便後來加入的同仁掃描。
+      </div>
+    </div>
+
+    <!-- ② 按下「進入抽獎」後才顯示：抽獎主畫面 -->
+    <div id="adminMainPanel" style="flex:1;display:none;">
+      <div class="row">
+        <div class="col-left">
+          <div id="animationArea" class="pixel-frame"></div>
+        </div>
+        <div class="col-right">
+          <!-- 控制與小 QRCode -->
+          <div class="pixel-frame" style="margin-bottom:8px;">
+            <div style="font-family:var(--font-pixel);font-size:10px;margin-bottom:4px;">
+              🎮 抽獎控制（遊戲模式將自動隨機輪替 8 種）
+            </div>
+
+            <!-- 小型 QR 區塊 -->
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+              <div id="qrCodeSmall" style="width:80px;height:80px;background:#000;"></div>
+              <div class="small">
+                手機掃描加入抽獎：<br />
+                <span id="qrLinkText" style="word-break:break-all;"></span>
+              </div>
+            </div>
+
+            <label>本輪要抽出人數（連抽）：</label>
+            <input
+              id="countInput"
+              type="number"
+              min="1"
+              max="50"
+              value="1"
+              class="pixel-input"
+            />
+
+            <button id="startButton" class="pixel-btn">▶ START DRAW</button>
+            <button id="resetButton" class="pixel-btn" style="background:#660000;">
+              ⟳ RESET 活動
+            </button>
+
+            <div id="adminError" class="error-message"></div>
+            <div style="margin-top:6px;" class="small">
+              遊戲模式會從 8 種動畫中<strong>隨機且不重複</strong>抽出；若本輪超過 8 人，將循環使用模式。
             </div>
           </div>
 
-          <label>遊戲模式：</label>
-          <select id="modeSelect" class="pixel-select">
-            <option value="race">1. 像素賽車 (Race)</option>
-            <option value="slots">2. 黃金拉霸 (Slots)</option>
-            <option value="claw">3. 夾娃娃機 (Claw)</option>
-            <option value="meteor">4. 流星撞擊 (Meteor)</option>
-            <option value="adventure">5. 冒險島 (Adventure)</option>
-            <option value="shooter">6. 太空射擊 (Shooter)</option>
-            <option value="wheel">7. 幸運轉盤 (Retro)</option>
-            <option value="tarot">8. 塔羅翻牌 (Magic)</option>
-          </select>
-
-          <label>本輪要抽出人數（連抽）：</label>
-          <input
-            id="countInput"
-            type="number"
-            min="1"
-            max="50"
-            value="1"
-            class="pixel-input"
-          />
-
-          <button id="startButton" class="pixel-btn">▶ START DRAW</button>
-          <button id="resetButton" class="pixel-btn" style="background:#660000;">
-            ⟳ RESET 活動
-          </button>
-
-          <div id="adminError" class="error-message"></div>
-          <div style="margin-top:6px;" class="small">
-            抽獎流程：啟動 5–8 秒 → 揭曉 2 秒 → 恭喜 5 秒（每輪自動串接）
+          <!-- 玩家列表 -->
+          <div class="pixel-frame status-panel">
+            <h3>👥 玩家列表</h3>
+            <ul id="playersList"></ul>
+            <h3 style="margin-top:6px;">✨ 已中獎</h3>
+            <ul id="winnersList"></ul>
           </div>
-        </div>
-
-        <!-- 玩家列表 -->
-        <div class="pixel-frame status-panel">
-          <h3>👥 玩家列表</h3>
-          <ul id="playersList"></ul>
-          <h3 style="margin-top:6px;">✨ 已中獎</h3>
-          <ul id="winnersList"></ul>
         </div>
       </div>
     </div>
@@ -1150,13 +1198,24 @@
       socket = { on() {}, emit() {} }; // 假 socket，畫面可正常顯示
     }
 
+    const ALL_MODES = [
+      "race",
+      "slots",
+      "claw",
+      "meteor",
+      "adventure",
+      "shooter",
+      "wheel",
+      "tarot",
+    ];
+
     // --- 模式切換 ---
     const mode = getQueryParam("mode");
     const adminLayout = document.getElementById("adminLayout");
     const playerLayout = document.getElementById("playerLayout");
 
     if (mode === "admin") {
-      adminLayout.style.display = "block";
+      adminLayout.style.display = "flex";
       setupAdmin();
     } else {
       playerLayout.style.display = "block";
@@ -1254,7 +1313,10 @@
     // 主持人 / 投影端邏輯
     // ===========================================================
     function setupAdmin() {
-      const modeSelect = document.getElementById("modeSelect");
+      const adminLanding = document.getElementById("adminLanding");
+      const adminMainPanel = document.getElementById("adminMainPanel");
+      const enterDrawButton = document.getElementById("enterDrawButton");
+
       const countInput = document.getElementById("countInput");
       const startButton = document.getElementById("startButton");
       const resetButton = document.getElementById("resetButton");
@@ -1263,41 +1325,69 @@
       const winnersList = document.getElementById("winnersList");
       const animationArea = document.getElementById("animationArea");
 
-      // 產生玩家加入用 QR Code
+      // 產生玩家加入用 URL
       const joinUrl = `${window.location.origin}/?mode=player`;
-      const qrLinkText = document.getElementById("qrLinkText");
-      const qrCodeContainer = document.getElementById("qrCode");
 
-      if (qrLinkText) {
-        qrLinkText.textContent = joinUrl;
+      // 大 QR for Landing
+      const qrLandingBox = document.getElementById("qrCodeLanding");
+      const qrLandingLink = document.getElementById("qrLandingLink");
+      if (qrLandingLink) {
+        qrLandingLink.textContent = joinUrl;
       }
-      if (qrCodeContainer && typeof QRCode !== "undefined") {
-        qrCodeContainer.innerHTML = "";
-        new QRCode(qrCodeContainer, {
+      if (qrLandingBox && typeof QRCode !== "undefined") {
+        qrLandingBox.innerHTML = "";
+        new QRCode(qrLandingBox, {
           text: joinUrl,
-          width: 96,
-          height: 96,
+          width: 240,
+          height: 240,
           colorDark: "#ffffff",
           colorLight: "#2b0000",
           correctLevel: QRCode.CorrectLevel.H,
         });
       }
 
+      // 小 QR in 控制區
+      const qrLinkText = document.getElementById("qrLinkText");
+      const qrCodeSmall = document.getElementById("qrCodeSmall");
+      if (qrLinkText) {
+        qrLinkText.textContent = joinUrl;
+      }
+      if (qrCodeSmall && typeof QRCode !== "undefined") {
+        qrCodeSmall.innerHTML = "";
+        new QRCode(qrCodeSmall, {
+          text: joinUrl,
+          width: 80,
+          height: 80,
+          colorDark: "#ffffff",
+          colorLight: "#2b0000",
+          correctLevel: QRCode.CorrectLevel.H,
+        });
+      }
+
+      // 進入抽獎主畫面
+      enterDrawButton.addEventListener("click", () => {
+        adminLanding.style.display = "none";
+        adminMainPanel.style.display = "block";
+      });
+
       let isDrawing = false;
 
       startButton.addEventListener("click", async () => {
         if (isDrawing) return;
-        const mode = modeSelect.value;
         const count = parseInt(countInput.value, 10) || 0;
         if (count <= 0) {
           adminError.textContent = "請輸入要抽出的人數（至少 1 人）";
           return;
         }
         adminError.textContent = "";
+
+        // 產生隨機模式序列（至少前 8 個不重複）
+        const modeSequence = buildRandomModeSequence(count);
+
         isDrawing = true;
         startButton.textContent = "DRAWING…";
         try {
-          await runDrawSequence({ mode, count, animationArea, adminError });
+          await runDrawSequence({ modeSequence, count, animationArea, adminError });
         } finally {
           isDrawing = false;
           startButton.textContent = "▶ START DRAW";
@@ -1342,11 +1432,25 @@
       });
     }
 
+    // 建立隨機模式序列：先打亂 8 種，再依序填滿 count
+    function buildRandomModeSequence(count) {
+      const shuffled = ALL_MODES.slice().sort(() => Math.random() - 0.5);
+      const result = [];
+      while (result.length < count) {
+        for (const m of shuffled) {
+          result.push(m);
+          if (result.length === count) break;
+        }
+      }
+      return result;
+    }
+
     // ===========================================================
     // 抽獎序列：連抽 N 人
     // ===========================================================
-    async function runDrawSequence({ mode, count, animationArea, adminError }) {
-      for (let i = 1; i <= count; i++) {
+    async function runDrawSequence({ modeSequence, count, animationArea, adminError }) {
+      for (let i = 0; i < count; i++) {
+        const mode = modeSequence[i] || ALL_MODES[0];
         const winner = await requestWinnerFromServer();
         if (!winner) {
           adminError.textContent = "可抽玩家不足，無法繼續抽獎。";
@@ -1357,7 +1461,7 @@
           animationArea,
           mode,
           winner,
-          roundIndex: i,
+          roundIndex: i + 1,
           roundTotal: count,
         });
       }
