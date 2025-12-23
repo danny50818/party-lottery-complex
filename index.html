@@ -9,8 +9,6 @@
     <script>
         window.onerror = function(msg, url, line, col, error) {
             console.error("Global Error:", msg);
-            // 忽略非致命錯誤
-            if (msg.includes("ResizeObserver") || msg.includes("Script error")) return true;
             return false;
         };
     </script>
@@ -18,7 +16,7 @@
     <!-- CSS Framework -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <!-- 2. React & Babel -->
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
@@ -42,7 +40,7 @@
             image-rendering: pixelated;
         }
 
-        /* UI 元件 */
+        /* 8-Bit UI 元件 */
         .pixel-box { background: #fff; border: 4px solid #000; color: #000; box-shadow: -4px 0 0 0 #000, 4px 0 0 0 #000, 0 -4px 0 0 #000, 0 4px 0 0 #000; }
         .pixel-box-dark { background: #000; border: 4px solid #fff; color: #fff; box-shadow: -4px 0 0 0 #fff, 4px 0 0 0 #fff, 0 -4px 0 0 #fff, 0 4px 0 0 #fff; }
         .pixel-btn { 
@@ -89,52 +87,51 @@
         @keyframes horse-gallop { 0% { transform: translateY(0); } 50% { transform: translateY(-4px); } 100% { transform: translateY(0); } }
         .horse-sprite { animation: horse-gallop 0.15s steps(2) infinite; display: inline-block; transform: scaleX(1); }
 
-        /* 2. 拉霸 */
+        /* 2. 拉霸 (CSS Blur) */
         @keyframes reel-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         .reel-blur { 
             background: repeating-linear-gradient(180deg, #fff 0, #ccc 50%, #fff 100%);
-            background-size: 100% 20px;
+            background-size: 100% 120px; /* 增加間距 */
             animation: reel-move 0.1s linear infinite;
             filter: blur(2px);
             color: transparent;
         }
 
         /* 3. 瑪利歐 (慢跑->跳躍) */
-        @keyframes mario-run-anim { 0% { left: -10%; } 100% { left: 50%; } } 
-        @keyframes mario-jump-anim { 0% { bottom: 20px; } 50% { bottom: 250px; } 100% { bottom: 20px; } }
-        .mario-running { animation: mario-run 0.15s steps(2) infinite; }
-        .mario-jump-effect { animation: mario-jump-anim 0.6s ease-out forwards; }
-        @keyframes block-bump { 0% { transform: translateY(0); } 50% { transform: translateY(-30px); } 100% { transform: translateY(0); } }
+        @keyframes mario-phase1 { 0% { left: -10%; transform: scaleX(1); } 100% { left: 100%; transform: scaleX(1); } }
+        @keyframes mario-phase2 { 0% { left: 100%; transform: scaleX(-1); } 100% { left: 50%; transform: scaleX(-1); } }
+        @keyframes mario-jump-up { 0% { bottom: 20px; } 50% { bottom: 250px; } 100% { bottom: 20px; } }
+        
+        .mario-p1 { animation: mario-phase1 3s linear forwards; }
+        .mario-p2 { animation: mario-phase2 1.5s linear forwards; }
+        .mario-jump-anim { animation: mario-jump-up 0.5s ease-out forwards; }
+        
+        @keyframes block-bump { 0% { transform: translateY(0); } 50% { transform: translateY(-40px); } 100% { transform: translateY(0); } }
         .block-bump-anim { animation: block-bump 0.3s ease-out; }
 
         /* 4. 射箭 (Archery) */
-        @keyframes arrow-fly-in { 0% { left: -50vw; } 100% { left: calc(50% - 140px); } } 
-        .arrow-anim { animation: arrow-fly-in 0.8s ease-out forwards; }
+        /* 修正：從左側外(-100%)飛入，停在中間(50% - 修正值) */
+        @keyframes arrow-fly-in { 0% { left: -100%; } 100% { left: calc(50% - 150px); } } 
+        .arrow-anim { animation: arrow-fly-in 0.6s ease-out forwards; }
         @keyframes target-shake { 0%, 100% { transform: scale(1) translateX(-50%); } 10%, 90% { transform: scale(1.2) translateX(-55%); } 50% { transform: scale(1.1) translateX(-45%); } }
         .target-hit { animation: target-shake 0.5s ease-in-out; }
 
         /* 5. 足球 (Soccer) */
-        @keyframes ball-bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -30px; } }
         @keyframes ball-kick { 0% { left: -10%; transform: rotate(0deg); } 100% { left: 80%; transform: rotate(720deg); } }
         .ball-anim { animation: ball-kick 2.5s ease-out forwards; }
-        .ball-bobbing { animation: ball-bob 0.5s ease-in-out infinite; }
 
         /* 6. 炸彈 (Bomb) */
         @keyframes bomb-pulse-grow { 0% { transform: scale(1); filter: hue-rotate(0deg); } 100% { transform: scale(5); filter: hue-rotate(180deg); } }
         .bomb-growing { animation: bomb-pulse-grow 3s ease-in forwards; }
-        @keyframes explode-big { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(3); opacity: 1; background: white; } 100% { transform: scale(4); opacity: 0; } }
-        .bomb-boom { animation: explode-big 0.5s ease-out forwards; }
 
         /* 7. 流星雨 (Meteor) */
         @keyframes meteor-cross { 
-            0% { transform: translate(100vw, -100vh) scale(0.5); opacity: 1; } 
-            100% { transform: translate(-100vw, 100vh) scale(1); opacity: 0; } 
+            0% { transform: translate(120vw, -120vh) scale(0.5); opacity: 1; } 
+            100% { transform: translate(-20vw, 120vh) scale(1); opacity: 0; } 
         }
         .meteor-shower-item { position: absolute; top: 0; right: 0; animation: meteor-cross 2s linear infinite; }
         @keyframes meteor-center-crash { 0% { transform: translate(100vw, -100vh) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2); opacity: 1; top: 50%; left: 50%; } }
         .meteor-final { position: absolute; top: 0; right: 0; animation: meteor-center-crash 0.8s ease-in forwards; }
-        @keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .twinkle-star { animation: twinkle 1s infinite; }
 
         /* 8. 雷達 (Radar) */
         @keyframes radar-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -144,13 +141,11 @@
 
         /* 9. 塔羅 (翻牌) */
         .card-container { perspective: 1000px; }
-        .card-inner { width: 100%; height: 100%; transition: transform 1s; transform-style: preserve-3d; }
+        .card-inner { width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
         .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 4px solid #facc15; }
         .card-front { background: #4c1d95; transform: rotateY(0deg); }
         .card-back { background: #fff; transform: rotateY(180deg); color: #000; }
         .flipped .card-inner { transform: rotateY(180deg); }
-        @keyframes shuffle { 0% { transform: translateX(0); z-index:1; } 50% { transform: translateX(100px); z-index:10; } 100% { transform: translateX(0); z-index:1; } }
-        .shuffling { animation: shuffle 0.5s ease-in-out infinite; }
 
         /* 10. 飛機 (Shooter) */
         @keyframes ship-move { 0% { left: 20%; } 50% { left: 80%; } 100% { left: 20%; } }
@@ -174,6 +169,7 @@
 <body>
     <div id="root"></div>
     
+    <!-- 3D 背景 -->
     <div class="retro-wrapper">
         <div class="retro-horizon"></div>
         <div class="retro-grid-plane"></div>
@@ -200,85 +196,48 @@
         // --- 音效管理器 (Web Audio API) ---
         const AudioManager = {
             ctx: null,
-            osc: null,
-            gain: null,
             init: function() {
                 if (!this.ctx) {
                     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 }
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+            },
+            playTone: function(freq, type, duration) {
+                if(!this.ctx) this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
             },
             playTension: function() {
-                try {
-                    this.init();
-                    if (this.osc) this.stopTension();
-                    this.osc = this.ctx.createOscillator();
-                    this.gain = this.ctx.createGain();
-                    this.osc.type = 'triangle';
-                    this.osc.frequency.setValueAtTime(100, this.ctx.currentTime);
-                    this.osc.frequency.linearRampToValueAtTime(800, this.ctx.currentTime + 8); // 8秒升頻
-                    this.gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
-                    this.gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 5);
-                    this.osc.connect(this.gain);
-                    this.gain.connect(this.ctx.destination);
-                    this.osc.start();
-                } catch(e) { console.warn("Audio Error", e); }
-            },
-            stopTension: function() {
-                if (this.osc) {
-                    try {
-                        this.gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
-                        this.osc.stop(this.ctx.currentTime + 0.5);
-                        this.osc = null;
-                    } catch(e) {}
-                }
+                // 模擬緊張音效 (循環低頻)
+                this.init();
+                // 這裡簡化為不播放持續音，避免瀏覽器阻擋，改為揭曉時播放音效
             },
             playWin: function() {
-                try {
-                    this.init();
-                    const now = this.ctx.currentTime;
-                    // Major Chord (C-E-G-C)
-                    [0, 4, 7, 12].forEach((semitone, i) => {
-                        const osc = this.ctx.createOscillator();
-                        const gain = this.ctx.createGain();
-                        osc.type = 'square';
-                        const freq = 523.25 * Math.pow(2, semitone / 12);
-                        osc.frequency.value = freq;
-                        gain.gain.setValueAtTime(0.1, now + i * 0.1);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.5);
-                        osc.connect(gain);
-                        gain.connect(this.ctx.destination);
-                        osc.start(now + i * 0.1);
-                        osc.stop(now + i * 0.1 + 0.5);
-                    });
-                } catch(e) {}
+                this.init();
+                // 勝利音效 (C Major Arpeggio)
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 'square', 0.5), i * 100);
+                });
             },
             speak: function(text) {
                 if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel(); // 先停止之前的
+                    window.speechSynthesis.cancel();
                     const utter = new SpeechSynthesisUtterance(text);
                     utter.lang = 'zh-TW';
-                    utter.rate = 1.1;
-                    utter.pitch = 1.2;
                     window.speechSynthesis.speak(utter);
                 }
             }
         };
 
-        class ErrorBoundary extends Component {
-            constructor(props) { super(props); this.state = { hasError: false }; }
-            static getDerivedStateFromError(error) { return { hasError: true }; }
-            render() {
-                if (this.state.hasError) {
-                    removeLoading();
-                    return <div className="h-screen flex flex-col items-center justify-center p-6 bg-red-900 text-white text-center font-mono"><h1>SYSTEM CRASHED</h1><button onClick={()=>window.location.reload()} className="mt-4 pixel-btn px-4 py-2 bg-white text-black">REBOOT</button></div>;
-                }
-                return this.props.children;
-            }
-        }
-
+        // --- Socket Hook ---
         const useSocket = (roomId, onEvent) => {
             const socketRef = useRef(null);
             const [status, setStatus] = useState('connecting');
@@ -290,10 +249,12 @@
                 
                 socket.on('connect', () => { setStatus('connected'); socket.emit('join_room', roomId); removeLoading(); });
                 socket.on('disconnect', () => setStatus('disconnected'));
+                
                 socket.on('player_list_update', (d) => onEvent && onEvent('player_list_update', d));
                 socket.on('game_status_update', (d) => onEvent && onEvent('game_status_update', d));
                 socket.on('init_data', (d) => onEvent && onEvent('init_data', d));
                 socket.on('game_reset', (d) => onEvent && onEvent('game_reset', d));
+                
                 return () => socket.disconnect();
             }, [roomId]);
             const emit = (e, d) => { if(socketRef.current) socketRef.current.emit(e, { roomId, ...d }); };
@@ -307,7 +268,7 @@
             // 動畫狀態
             const [horses, setHorses] = useState([]);
             const [slotStops, setSlotStops] = useState([false, false, false]);
-            const [marioPos, setMarioPos] = useState({x: 10, jump: false, bump: false});
+            const [marioPhase, setMarioPhase] = useState(0); // 0:wait, 1:runR, 2:runL, 3:wait, 4:jump
             const [shooter, setShooter] = useState({x: 50, laser: false, boom: false});
             const [archery, setArchery] = useState({shoot: false, hit: false});
             const [meteorStage, setMeteorStage] = useState(0); 
@@ -326,10 +287,8 @@
             useEffect(() => {
                 let interval;
                 if (isRolling) {
-                    // --- 初始化狀態 & 播放音效 ---
-                    AudioManager.playTension();
-
-                    setMarioPos({x: 0, jump: false, bump: false});
+                    // --- 初始化狀態 ---
+                    setMarioPhase(1); // 開始跑 Phase 1
                     setSlotStops([false, false, false]);
                     setShooter({x: 50, laser: false, boom: false}); 
                     setArchery({shoot: false, hit: false});
@@ -349,20 +308,19 @@
                         }, 100);
                     } 
                     else if (mode === 'adventure') {
-                        // 瑪利歐慢跑: 3秒跑50%
-                        interval = setInterval(() => {
-                            setMarioPos(prev => ({ ...prev, x: Math.min(50, prev.x + 1) })); // 跑到中間停
-                        }, 60);
+                        // 瑪利歐動畫由 CSS Animation 控制，這裡不需要 JS 循環
                     }
                     else if (mode === 'shooter') {
-                        // 飛船左右慢移
                         interval = setInterval(() => {
-                            setShooter(prev => ({...prev, x: (prev.x + 1) % 80 + 10}));
+                            setShooter(prev => ({...prev, x: (prev.x + 2) % 80 + 10}));
                         }, 50);
                     }
                     else if (mode === 'bomb') {
-                        // 炸彈變大
                         interval = setInterval(() => setBomb(prev => ({...prev, size: Math.min(8, prev.size + 0.05)})), 100);
+                    }
+                    else if (mode === 'radar') {
+                        // 雷達紅點早點出來
+                        setTimeout(() => setRadarDot(true), 2000);
                     }
                     else if (!['slots', 'retro', 'magic'].includes(mode)) {
                         interval = setInterval(() => {
@@ -372,19 +330,21 @@
                     }
                 } 
                 else if (targetName) {
+                    // --- 揭曉動畫 (時間軸) ---
                     setDisplay(targetName);
-                    // 停止緊張音效，準備播放中獎
-                    AudioManager.stopTension();
                     
-                    if (mode === 'race' && winnerObj) { setHorses(prev => prev.map(h => h.name === winnerObj.name ? {...h, progress: 95} : h)); }
+                    if (mode === 'race' && winnerObj) {
+                        setHorses(prev => prev.map(h => h.name === winnerObj.name ? {...h, progress: 98} : h));
+                    }
                     if (mode === 'slots') {
                         setTimeout(() => setSlotStops([true, false, false]), 500);
                         setTimeout(() => setSlotStops([true, true, false]), 1500);
                         setTimeout(() => setSlotStops([true, true, true]), 2500);
                     }
                     if (mode === 'adventure') {
-                        setMarioPos(prev => ({...prev, x: 50, jump: true})); 
-                        setTimeout(() => setMarioPos(prev => ({...prev, bump: true})), 400); 
+                        setMarioPhase(2); // 跑回頭 (CSS animation delay 會處理)
+                        setTimeout(() => setMarioPhase(3), 3000); // 停在中間
+                        setTimeout(() => setMarioPhase(4), 3100); // 跳躍頂磚
                     }
                     if (mode === 'shooter') {
                         setShooter(prev => ({...prev, x: 50, laser: true}));
@@ -404,7 +364,7 @@
                         setTimeout(() => setCardFlipState([1, 1, 2]), 2500);
                     }
                     if (mode === 'radar') {
-                        setTimeout(() => setRadarDot(true), 1000);
+                        setRadarDot(true);
                     }
                     if (mode === 'soccer') {
                         setSoccer({kick: true, goal: false});
@@ -427,14 +387,20 @@
             if (mode === 'adventure') return (
                 <div className="w-full h-full relative flex flex-col justify-end pb-20">
                      <div className="absolute top-[30%] left-1/2 -translate-x-1/2 flex gap-4">
-                         <div className={`w-24 h-24 bg-yellow-600 border-4 border-black flex items-center justify-center text-white font-bold text-5xl ${marioPos.bump?'block-bump-anim':''}`}>?</div>
+                         <div className={`w-24 h-24 bg-yellow-600 border-4 border-black flex items-center justify-center text-white font-bold text-5xl ${marioPhase===4?'block-bump-anim':''}`}>?</div>
                      </div>
-                     <div className="h-24 bg-red-900 border-t-8 border-black w-full relative z-10"></div>
-                     <div className={`absolute bottom-24 transition-all duration-100 ${marioPos.jump ? 'left-1/2 -translate-x-1/2 mario-jump-anim' : 'mario-running'}`} 
-                          style={{left: `${marioPos.x}%`}}>
-                         <div className="text-9xl">🚶🏼‍➡️</div>
+                     <div className="h-4 bg-red-900 border-t-4 border-black w-full relative z-10"></div>
+                     
+                     <div className={`absolute bottom-[20px] text-9xl 
+                        ${marioPhase===1 ? 'mario-p1' : ''} 
+                        ${marioPhase===2 ? 'mario-p2' : ''} 
+                        ${marioPhase===4 ? 'mario-jump-anim left-1/2 -translate-x-1/2' : ''}`}
+                        style={{left: marioPhase===0?'-10%': marioPhase===3?'50%': undefined }}
+                     >
+                         🚶🏼‍➡️
                      </div>
-                     {!isRolling && targetName && marioPos.bump && (
+
+                     {!isRolling && targetName && marioPhase===4 && (
                         <div className="absolute top-[10%] left-1/2 -translate-x-1/2 animate__animated animate__bounceIn pixel-box p-4 text-3xl font-bold text-black whitespace-nowrap">{getDisplayString(winnerObj)}</div>
                      )}
                 </div>
@@ -479,7 +445,7 @@
                         {[0,1,2].map(i => <div key={i} className={`text-8xl transition-all ${!isRolling && shooter.boom && i===1 ? 'exploding' : 'animate-bounce'}`}>{!isRolling && shooter.boom && i===1 ? '💥' : '👾'}</div>)}
                      </div>
                      <div className="absolute bottom-10 text-8xl transition-all duration-100" style={{left: `${shooter.x}%`}}>🚀</div>
-                     {isRolling && <div className="absolute bottom-32 w-2 h-full bg-green-500 laser-beam laser-anim" style={{left: `${shooter.x}%`}}></div>}
+                     {isRolling && <div className="absolute bottom-32 w-2 h-full bg-green-500 laser-beam laser-fire" style={{left: `${shooter.x}%`}}></div>}
                      {shooter.laser && <div className="absolute bottom-32 w-4 h-full bg-red-500 laser-beam" style={{left: '50%'}}></div>}
                      
                      {!isRolling && shooter.boom && (
@@ -731,6 +697,7 @@
                 setIsDrawing(true);
                 emit('update_game_status', { status: { status: 'playing' } });
 
+                // 動畫時長設定
                 const duration = (mode === 'race' || mode === 'adventure' || mode === 'archery') ? 6000 : 4000;
                 
                 setDisplayState({ rolling: true, winner: null, text: "ROLLING" });
