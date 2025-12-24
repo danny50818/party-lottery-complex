@@ -42,7 +42,7 @@
         }
         @keyframes drift { from { left: -60px; } to { left: 110%; } }
 
-        /* --- 主卡片 (遊戲對話框風格) --- */
+        /* --- 主卡片 --- */
         .card {
             position: relative; z-index: 10;
             background: var(--nes-black);
@@ -51,16 +51,13 @@
             width: 85%;
             max-width: 320px;
             text-align: center;
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.5); /* 硬陰影 */
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.5);
             display: flex; flex-direction: column; align-items: center;
         }
 
         h2 { 
-            color: var(--nes-gold); 
-            font-size: 1.2rem; 
-            margin: 0 0 20px 0; 
-            line-height: 1.5;
-            text-shadow: 2px 2px 0 var(--nes-red);
+            color: var(--nes-gold); font-size: 1.2rem; margin: 0 0 20px 0; 
+            line-height: 1.5; text-shadow: 2px 2px 0 var(--nes-red);
         }
         
         p { font-size: 0.7rem; color: #ccc; margin-bottom: 20px; line-height: 1.6; font-family: 'Noto Sans TC'; }
@@ -68,34 +65,22 @@
         /* --- 輸入框 --- */
         input[type="text"] {
             width: 100%; padding: 15px; margin-bottom: 20px;
-            background: #000; 
-            border: 4px solid #fff;
-            color: #fff; 
-            font-family: 'Press Start 2P', 'Noto Sans TC'; 
-            text-align: center;
-            box-sizing: border-box; 
-            outline: none;
-            font-size: 1rem;
+            background: #000; border: 4px solid #fff; color: #fff; 
+            font-family: 'Press Start 2P', 'Noto Sans TC'; text-align: center;
+            box-sizing: border-box; outline: none; font-size: 1rem;
         }
         input::placeholder { color: #555; }
         input:focus { border-color: var(--nes-gold); }
 
         /* --- 按鈕 --- */
         button {
-            background: var(--nes-red); 
-            color: #fff; 
-            border: 4px solid #fff;
-            padding: 15px 20px; 
-            font-family: inherit; 
-            font-size: 1rem;
-            cursor: pointer; 
-            width: 100%;
-            box-shadow: 4px 4px 0 #333;
+            background: var(--nes-red); color: #fff; border: 4px solid #fff;
+            padding: 15px 20px; font-family: inherit; font-size: 1rem;
+            cursor: pointer; width: 100%; box-shadow: 4px 4px 0 #333;
             transition: transform 0.1s;
         }
         button:active { transform: translate(4px, 4px); box-shadow: none; }
 
-        /* --- 狀態頁面 --- */
         .hidden { display: none !important; }
         
         /* 贏家特效 */
@@ -103,18 +88,23 @@
         .win-bg .card { border-color: var(--nes-red); }
         .win-bg h2 { color: var(--nes-red); text-shadow: none; }
 
-        /* Icon 動畫 */
+        /* 動畫 */
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .icon-bounce { display: inline-block; animation: bounce 1s infinite; }
         
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .icon-spin { display: inline-block; animation: spin 1s linear infinite; }
 
+        /* 重連訊息 */
+        #reconnect-msg {
+            color: #00ff00; font-size: 0.6rem; margin-bottom: 15px; display: none;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-    <!-- 背景 -->
     <div class="bg-layer">
         <div class="pixel-cloud" style="top: 15%; animation-duration: 15s;"></div>
         <div class="pixel-cloud" style="top: 40%; animation-duration: 25s; transform: scale(1.5);"></div>
@@ -124,9 +114,13 @@
     <!-- 1. 登入畫面 -->
     <div id="login-view" class="card">
         <h2>PLAYER 1<br>START</h2>
+        
+        <!-- 自動重連提示 -->
+        <div id="reconnect-msg">FOUND SAVE DATA...</div>
+        
         <p>ENTER YOUR NAME</p>
         <input type="text" id="username" placeholder="NAME" maxlength="10">
-        <button onclick="login()">READY</button>
+        <button onclick="manualLogin()">READY</button>
         <div id="msg" style="color:var(--nes-red); margin-top:15px; font-size:0.6rem; min-height:1em;"></div>
     </div>
 
@@ -153,26 +147,66 @@
     <script>
         const socket = io();
         let myName = "";
+        
+        // ★★★ 1. 產生或讀取唯一 ID (UID) ★★★
+        // 這是斷線重連的關鍵：即使名字一樣，Server 也會認 UID
+        let myUid = localStorage.getItem('player_uid');
+        if (!myUid) {
+            myUid = 'uid_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('player_uid', myUid);
+        }
 
-        function login() {
+        // ★★★ 2. 自動重連邏輯 ★★★
+        socket.on('connect', () => {
+            const savedName = localStorage.getItem('player_name');
+            if (savedName) {
+                // 顯示「發現存檔」訊息
+                document.getElementById('reconnect-msg').style.display = 'block';
+                document.getElementById('username').value = savedName; // 幫忙填入名字
+                
+                // 嘗試自動登入 (帶上 UID)
+                socket.emit('mobile_login', { name: savedName, uid: myUid });
+                
+                // 視覺回饋
+                const btn = document.querySelector('button');
+                btn.innerText = "LOADING...";
+            }
+        });
+
+        // 手動點擊登入
+        function manualLogin() {
             const name = document.getElementById('username').value.trim();
             if(!name) return;
-            // 簡單的點擊回饋
+            
             const btn = document.querySelector('button');
             btn.innerText = "LOADING...";
             
-            socket.emit('mobile_login', name);
+            // 儲存名字以便下次重連
+            localStorage.setItem('player_name', name);
+            
+            // 發送登入請求 (帶上 UID)
+            socket.emit('mobile_login', { name: name, uid: myUid });
         }
 
+        // 登入成功
         socket.on('login_success', (d) => {
             myName = d.name;
             document.getElementById('display-name').innerText = myName;
+            document.getElementById('reconnect-msg').style.display = 'none'; // 隱藏提示
             show('wait-view');
         });
 
+        // 登入失敗
         socket.on('login_error', (m) => {
             document.getElementById('msg').innerText = m;
             document.querySelector('button').innerText = "READY";
+            document.getElementById('reconnect-msg').style.display = 'none';
+            
+            // 如果是因為名字被佔用 (且 UID 對不上)，則清除本地存檔，避免無限迴圈卡死
+            if (m === 'NAME TAKEN') {
+                localStorage.removeItem('player_name');
+                document.getElementById('username').value = "";
+            }
         });
 
         socket.on('client_show_rolling', () => show('rolling-view'));
@@ -201,7 +235,12 @@
             show('result-view');
         });
 
-        socket.on('event_reset', () => location.reload());
+        // ★★★ 3. 重置處理 ★★★
+        socket.on('event_reset', () => {
+            alert("GAME RESET");
+            localStorage.removeItem('player_name'); // 重置時清除存檔，強迫重新輸入
+            location.reload();
+        });
 
         function show(id) {
             document.querySelectorAll('.card').forEach(e => e.classList.add('hidden'));
