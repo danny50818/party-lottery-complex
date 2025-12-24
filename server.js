@@ -10,20 +10,16 @@ const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-// ==========================================
-// ★★★ 強化的檔案搜尋邏輯 (修正 404 錯誤) ★★★
-// ==========================================
-
-console.log("Server running in:", __dirname);
+// --- 檔案路徑設定 ---
+console.log("Server started in:", __dirname);
 const publicPath = path.join(__dirname, 'public');
 
-// 1. 設定靜態資源目錄 (優先查 public，找不到查根目錄)
 if (fs.existsSync(publicPath)) {
     app.use(express.static(publicPath));
+} else {
+    app.use(express.static(__dirname));
 }
-app.use(express.static(__dirname)); // 容錯：允許直接讀取根目錄資源
 
-// 2. 萬用檔案傳送函式
 function serveFile(res, filename) {
     const fileInPublic = path.join(publicPath, filename);
     const fileInRoot = path.join(__dirname, filename);
@@ -31,52 +27,57 @@ function serveFile(res, filename) {
     if (fs.existsSync(fileInPublic)) {
         res.sendFile(fileInPublic);
     } else if (fs.existsSync(fileInRoot)) {
-        // 如果 public 裡找不到，嘗試在根目錄找
-        console.log(`Serving ${filename} from root directory.`);
         res.sendFile(fileInRoot);
     } else {
-        console.error(`ERROR: ${filename} not found in public or root.`);
-        res.status(404).send(`Error: ${filename} not found. Please ensure the file exists.`);
+        res.status(404).send(`Error: ${filename} not found.`);
     }
 }
 
-// --- 路由設定 ---
-
-// 電腦/大螢幕首頁 -> index.html
-app.get('/', (req, res) => {
-    serveFile(res, 'index.html');
-});
-
-// 手機掃碼頁 -> mobile.html
-app.get('/mobile.html', (req, res) => {
-    serveFile(res, 'mobile.html');
-});
+app.get('/', (req, res) => serveFile(res, 'index.html'));
+app.get('/mobile.html', (req, res) => serveFile(res, 'mobile.html'));
 
 // ==========================================
-// --- 抽獎核心邏輯 ---
+// --- 抽獎邏輯 (支援斷線重連) ---
 // ==========================================
 
-let users = [];       
+let users = [];       // { id: socket.id, name: "Name", uid: "unique-id" }
 let excludedNames = []; 
 let winners = [];     
 
 io.on('connection', (socket) => {
     console.log(`Socket connected: ${socket.id}`);
 
-    // --- A. 手機端事件 ---
-    socket.on('mobile_login', (name) => {
+    // --- A. 手機端事件 (更新版) ---
+    socket.on('mobile_login', (data) => {
+        // 相容舊版寫法 (如果 data 是字串) 與新版物件
+        const name = (typeof data === 'object') ? data.name : data;
+        const uid = (typeof data === 'object') ? data.uid : null;
+
         const cleanName = name ? name.toString().trim() : "";
         if (!cleanName) { socket.emit('login_error', 'NAME REQUIRED'); return; }
         
-        // 簡單防重
-        if (users.some(u => u.name === cleanName)) { 
-            socket.emit('login_error', 'NAME TAKEN'); return; 
+        // 檢查名字是否已存在
+        const existingUser = users.find(u => u.name === cleanName);
+
+        if (existingUser) {
+            // ★★★ 重連邏輯 ★★★
+            // 如果名字存在，且 UID 吻合，視為本人重連
+            if (uid && existingUser.uid === uid) {
+                existingUser.id = socket.id; // 更新連線 ID
+                socket.emit('login_success', { name: cleanName, isReconnect: true });
+                console.log(`[Reconnect] ${cleanName}`);
+                // 不需要廣播 update_user_list，因為名單沒變
+            } else {
+                // 名字存在但 UID 不同 (或是舊版沒有 UID)，視為名稱衝突
+                socket.emit('login_error', 'NAME TAKEN');
+            }
+        } else {
+            // 新使用者
+            users.push({ id: socket.id, name: cleanName, uid: uid });
+            socket.emit('login_success', { name: cleanName, isReconnect: false });
+            io.emit('update_user_list', users.map(u => u.name));
+            console.log(`[Join] ${cleanName}`);
         }
-        
-        users.push({ id: socket.id, name: cleanName });
-        socket.emit('login_success', { name: cleanName });
-        io.emit('update_user_list', users.map(u => u.name));
-        console.log(`[Join] ${cleanName}`);
     });
 
     // --- B. 大螢幕(Admin)事件 ---
@@ -85,12 +86,9 @@ io.on('connection', (socket) => {
         socket.emit('update_winners', winners);
     });
 
-    socket.on('admin_start_rolling', () => {
-        io.emit('client_show_rolling'); 
-    });
+    socket.on('admin_start_rolling', () => io.emit('client_show_rolling'));
 
     socket.on('admin_perform_draw', () => {
-        // 過濾：排除已中獎 & 被剔除
         const candidates = users.filter(u => 
             !winners.includes(u.name) && 
             !excludedNames.includes(u.name)
@@ -101,7 +99,6 @@ io.on('connection', (socket) => {
             return;
         }
 
-        // 隨機抽出
         const winner = candidates[Math.floor(Math.random() * candidates.length)];
         winners.push(winner.name);
         
