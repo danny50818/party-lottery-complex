@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JOIN GAME</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --nes-red: #E60012;
+            --nes-white: #FFFFFF;
+            --nes-black: #000000;
+            --nes-gold: #F8B800;
+            --nes-blue: #5C94FC;
+        }
+
+        body {
+            font-family: 'Press Start 2P', 'Noto Sans TC', cursive;
+            background-color: var(--nes-blue);
+            color: var(--nes-white);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            text-transform: uppercase;
+            image-rendering: pixelated;
+        }
+
+        /* --- 背景裝飾 --- */
+        .bg-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+        
+        .pixel-cloud {
+            position: absolute; background: #fff; width: 40px; height: 12px;
+            box-shadow: 12px 0 #fff, 6px -12px #fff;
+            opacity: 0.8; animation: drift linear infinite;
+        }
+        @keyframes drift { from { left: -60px; } to { left: 110%; } }
+
+        /* --- 主卡片 (遊戲對話框風格) --- */
+        .card {
+            position: relative; z-index: 10;
+            background: var(--nes-black);
+            border: 4px solid var(--nes-white);
+            padding: 30px 20px;
+            width: 85%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.5); /* 硬陰影 */
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        h2 { 
+            color: var(--nes-gold); 
+            font-size: 1.2rem; 
+            margin: 0 0 20px 0; 
+            line-height: 1.5;
+            text-shadow: 2px 2px 0 var(--nes-red);
+        }
+        
+        p { font-size: 0.7rem; color: #ccc; margin-bottom: 20px; line-height: 1.6; font-family: 'Noto Sans TC'; }
+
+        /* --- 輸入框 --- */
+        input[type="text"] {
+            width: 100%; padding: 15px; margin-bottom: 20px;
+            background: #000; 
+            border: 4px solid #fff;
+            color: #fff; 
+            font-family: 'Press Start 2P', 'Noto Sans TC'; 
+            text-align: center;
+            box-sizing: border-box; 
+            outline: none;
+            font-size: 1rem;
+        }
+        input::placeholder { color: #555; }
+        input:focus { border-color: var(--nes-gold); }
+
+        /* --- 按鈕 --- */
+        button {
+            background: var(--nes-red); 
+            color: #fff; 
+            border: 4px solid #fff;
+            padding: 15px 20px; 
+            font-family: inherit; 
+            font-size: 1rem;
+            cursor: pointer; 
+            width: 100%;
+            box-shadow: 4px 4px 0 #333;
+            transition: transform 0.1s;
+        }
+        button:active { transform: translate(4px, 4px); box-shadow: none; }
+
+        /* --- 狀態頁面 --- */
+        .hidden { display: none !important; }
+        
+        /* 贏家特效 */
+        .win-bg { background-color: var(--nes-gold) !important; }
+        .win-bg .card { border-color: var(--nes-red); }
+        .win-bg h2 { color: var(--nes-red); text-shadow: none; }
+
+        /* Icon 動畫 */
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .icon-bounce { display: inline-block; animation: bounce 1s infinite; }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .icon-spin { display: inline-block; animation: spin 1s linear infinite; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 背景 -->
+    <div class="bg-layer">
+        <div class="pixel-cloud" style="top: 15%; animation-duration: 15s;"></div>
+        <div class="pixel-cloud" style="top: 40%; animation-duration: 25s; transform: scale(1.5);"></div>
+        <div class="pixel-cloud" style="top: 70%; animation-duration: 18s; transform: scale(0.8);"></div>
+    </div>
+
+    <!-- 1. 登入畫面 -->
+    <div id="login-view" class="card">
+        <h2>PLAYER 1<br>START</h2>
+        <p>ENTER YOUR NAME</p>
+        <input type="text" id="username" placeholder="NAME" maxlength="10">
+        <button onclick="login()">READY</button>
+        <div id="msg" style="color:var(--nes-red); margin-top:15px; font-size:0.6rem; min-height:1em;"></div>
+    </div>
+
+    <!-- 2. 等待畫面 -->
+    <div id="wait-view" class="card hidden">
+        <h2 style="color:#00ff00; text-shadow: 2px 2px 0 #005500;">WAITING...</h2>
+        <div style="font-size:3rem; margin:20px;" class="icon-bounce">🍄</div>
+        <h3 id="display-name" style="color:#fff; margin:10px 0;"></h3>
+        <p>LOOK AT THE BIG SCREEN</p>
+    </div>
+
+    <!-- 3. 抽獎中畫面 -->
+    <div id="rolling-view" class="card hidden">
+        <div style="font-size:3rem;" class="icon-spin">🎰</div>
+        <h2 style="margin-top:20px;">ROLLING...</h2>
+        <p>GOOD LUCK!</p>
+    </div>
+
+    <!-- 4. 結果畫面 -->
+    <div id="result-view" class="card hidden">
+        <!-- JS 動態填入 -->
+    </div>
+
+    <script>
+        const socket = io();
+        let myName = "";
+
+        function login() {
+            const name = document.getElementById('username').value.trim();
+            if(!name) return;
+            // 簡單的點擊回饋
+            const btn = document.querySelector('button');
+            btn.innerText = "LOADING...";
+            
+            socket.emit('mobile_login', name);
+        }
+
+        socket.on('login_success', (d) => {
+            myName = d.name;
+            document.getElementById('display-name').innerText = myName;
+            show('wait-view');
+        });
+
+        socket.on('login_error', (m) => {
+            document.getElementById('msg').innerText = m;
+            document.querySelector('button').innerText = "READY";
+        });
+
+        socket.on('client_show_rolling', () => show('rolling-view'));
+        
+        socket.on('draw_result', (d) => {
+            const div = document.getElementById('result-view');
+            
+            if(d.winnerName === myName) {
+                // 中獎
+                document.body.className = 'win-bg';
+                div.innerHTML = `
+                    <div style="font-size:4rem;" class="icon-bounce">👑</div>
+                    <h2 style="font-size:1.5rem; margin-top:10px;">YOU WIN!</h2>
+                    <p style="color:#000; font-weight:bold;">CONGRATULATIONS!</p>
+                `;
+            } else {
+                // 沒中
+                document.body.className = '';
+                div.innerHTML = `
+                    <div style="font-size:3rem;">👻</div>
+                    <h2 style="margin-top:10px;">WINNER:</h2>
+                    <h3 style="color:var(--nes-gold); font-size:1.5rem; margin:10px 0;">${d.winnerName}</h3>
+                    <p>GAME OVER</p>
+                `;
+            }
+            show('result-view');
+        });
+
+        socket.on('event_reset', () => location.reload());
+
+        function show(id) {
+            document.querySelectorAll('.card').forEach(e => e.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
