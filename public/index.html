@@ -82,7 +82,7 @@
         }
 
         .qr-frame { background: #000; padding: 5px; }
-        #qr-img { width: 120px; height: 120px; display: block; background: #fff; }
+        #qr-img { width: 120px; height: 120px; display: block; background: #fff; image-rendering: pixelated; }
 
         .info-block { text-align: left; }
         .scan-text { 
@@ -156,14 +156,23 @@
         /* 內容層 */
         #game-canvas { width: 100%; height: 100%; image-rendering: pixelated; position: absolute; top:0; left:0; z-index: 5;}
         
-        #tv-lottie-player { width: 100%; height: 100%; position: absolute; top:0; left:0; display: none; background: #000; z-index: 10;}
-
-        /* Loading 文字 */
-        #loading-text {
-            position: absolute; z-index: 8; color: #00ff00; font-size: 2rem;
-            display: none; animation: blink 0.5s infinite;
+        /* Lottie 層 (初始隱藏) */
+        #tv-lottie-player { 
+            width: 100%; height: 100%; 
+            position: absolute; top:0; left:0; 
+            background: #000; z-index: 10;
+            display: none; /* 預設不顯示 */
         }
-        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ★★★ 讀取畫面 (填補黑屏) ★★★ */
+        #tv-loading {
+            position: absolute; z-index: 8;
+            color: #00ff00; font-size: 1.5rem;
+            display: none;
+            text-align: center;
+            animation: blink 0.5s infinite;
+        }
+        #tv-loading span { display: block; font-size: 3rem; margin-bottom: 10px; }
 
         /* 控制台 */
         .control-bar {
@@ -176,7 +185,7 @@
         .nes-input { background: #000; border: 2px solid #fff; color: #fff; font-family: inherit; font-size: 1rem; width: 60px; text-align: center; outline: none; }
         .credits-text { width: 100%; text-align: center; color: var(--text-gold); margin-top: 10px; font-size: 0.8rem; text-shadow: 2px 2px 0 #000; }
 
-        /* --- 3. 中獎彈窗 (簡化版：無動畫，只顯示結果) --- */
+        /* --- 3. 中獎彈窗 (純文字) --- */
         #winner-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 100;
@@ -239,14 +248,17 @@
         <div class="machine-container">
             <div class="tv-frame">
                 <div class="screen-area">
-                    <!-- 待機畫面 (文字) -->
+                    <!-- 待機文字 (INSERT COIN) -->
                     <canvas id="game-canvas"></canvas>
                     
                     <!-- 抽獎動畫 (Lottie) -->
                     <lottie-player id="tv-lottie-player" background="#000" speed="1" loop autoplay></lottie-player>
                     
-                    <!-- 讀取中文字 -->
-                    <div id="loading-text">LOADING...</div>
+                    <!-- ★★★ 讀取畫面 (填補黑屏) ★★★ -->
+                    <div id="tv-loading">
+                        <span>⌛</span>
+                        LOADING...
+                    </div>
                 </div>
             </div>
         </div>
@@ -263,7 +275,7 @@
         </div>
     </div>
 
-    <!-- 3. 中獎彈窗 (簡化版) -->
+    <!-- 3. 中獎彈窗 -->
     <div id="winner-modal" onclick="closeWinnerModal()">
         <div class="winner-panel" onclick="event.stopPropagation()">
             <div class="winner-header">★ WINNER! ★</div>
@@ -301,6 +313,7 @@
         let isMusicOn = true;
 
         // ★★★ 隨機動畫庫 (8個檔案) ★★★
+        // 請確保這些檔案已上傳至 public/
         const animationPool = [
             "Emos Spin.json",
             "Monitor screen with video game level up.json",
@@ -314,7 +327,7 @@
         
         const retroIcons = ["👾", "🚀", "🍄", "⭐", "🦖", "👻", "💎", "💣", "🎮", "📀", "🔋", "⚔️"];
 
-        // DOM
+        // DOM Elements
         const loginPage = document.getElementById('login-page');
         const gamePage = document.getElementById('game-page');
         const joinCountEl = document.getElementById('join-count');
@@ -326,12 +339,12 @@
         
         const gameCanvas = document.getElementById('game-canvas');
         const tvLottie = document.getElementById('tv-lottie-player');
-        const loadingText = document.getElementById('loading-text');
+        const tvLoading = document.getElementById('tv-loading');
 
         const mobileUrl = window.location.origin + "/mobile.html";
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(mobileUrl)}`;
 
-        // Socket
+        // Socket Events
         socket.on('connect', () => socket.emit('admin_init'));
         socket.on('update_user_list', (u) => { 
             users = u; updateUI(); 
@@ -383,10 +396,10 @@
                 await new Promise(resolve => {
                     socket.emit('admin_start_rolling');
                     
-                    // ★★★ 開始滾動：隨機挑選動畫並播放 ★★★
+                    // ★★★ 啟動抽獎畫面 ★★★
                     startRolling();
                     
-                    // ★★★ 延長等待時間至 5 秒，確保動畫播放 ★★★
+                    // ★★★ 延長至 5 秒，確保動畫有時間播放 ★★★
                     setTimeout(() => { socket.emit('admin_perform_draw'); resolve(); }, 5000);
                 });
                 await new Promise(r => drawResolver = r);
@@ -400,10 +413,10 @@
             isDrawing = false; drawBtn.disabled = false; drawBtn.innerText = "SPIN"; 
             animState = 'idle';
             
-            gameCanvas.style.display = 'block'; // 顯示文字
-            tvLottie.style.display = 'none';    // 隱藏動畫
+            gameCanvas.style.display = 'block'; // 顯示 INSERT COIN
+            tvLottie.style.display = 'none';
+            tvLoading.style.display = 'none';
             tvLottie.stop();
-            loadingText.style.display = 'none'; // 隱藏 Loading
             
             if(isMusicOn) bgmAudio.play().catch(()=>{});
         }
@@ -411,23 +424,26 @@
         function startRolling() {
             animState = 'rolling';
             
-            // 1. UI 切換：顯示 Loading，隱藏 Canvas
+            // 1. 隱藏待機文字，顯示 Loading
             gameCanvas.style.display = 'none';
-            tvLottie.style.display = 'none'; 
-            loadingText.style.display = 'block';
+            tvLottie.style.display = 'none';
+            tvLoading.style.display = 'block';
 
-            // 2. 隨機選擇動畫
+            // 2. 隨機選一個動畫
             const randomAnim = animationPool[Math.floor(Math.random() * animationPool.length)];
             
-            // 3. 載入並播放 (給一點時間載入)
-            setTimeout(() => {
-                loadingText.style.display = 'none'; // 載入後隱藏文字
-                tvLottie.style.display = 'block';   // 顯示播放器
-                tvLottie.load(randomAnim);
-                tvLottie.play();
-            }, 500); // 0.5秒讀取時間
+            // 3. 處理檔名空格並載入 (確保路徑正確)
+            tvLottie.load(encodeURIComponent(randomAnim));
 
-            // 4. 聲音效果
+            // 4. 監聽載入完成事件，或延遲顯示
+            // 簡單做法：延遲 0.8 秒後顯示動畫，隱藏 Loading
+            setTimeout(() => {
+                tvLoading.style.display = 'none';
+                tvLottie.style.display = 'block';
+                tvLottie.play();
+            }, 800);
+
+            // 5. 聲音加速特效
             const s = Date.now();
             const tick = () => {
                 if(animState!=='rolling') return;
@@ -440,10 +456,8 @@
             animState = 'idle';
             winnerNameEl.innerText = name;
             
-            // ★★★ 停止電視動畫，顯示黑屏或最後一幀 ★★★
+            // ★★★ 停止動畫，顯示中獎彈窗 ★★★
             tvLottie.pause();
-            
-            // 顯示彈窗
             winnerModal.classList.add('active');
             
             if(isMusicOn) bgmAudio.play().catch(()=>{});
@@ -455,7 +469,7 @@
             if(drawResolver) { drawResolver(); drawResolver = null; } else { resetBtn(); }
         }
 
-        // Canvas (待機畫面：INSERT COIN)
+        // Canvas (待機畫面)
         const cvs = document.getElementById('game-canvas');
         const ctx = cvs.getContext('2d');
         function initCanvas() { resize(); window.addEventListener('resize', resize); loop(); }
