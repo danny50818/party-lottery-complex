@@ -2,816 +2,585 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>家防中心尾牙盛典</title>
-
-    <!-- 1. 錯誤攔截 -->
-    <script>
-        window.onerror = function(msg, url, line, col, error) {
-            console.error("Global Error:", msg);
-            return false;
-        };
-    </script>
-
-    <!-- CSS Framework -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NES LUCKY DRAW</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     
-    <!-- 2. React & Babel -->
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- 3. Tools -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <!-- 引入像素風格字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* 字體設定：全域微軟正黑體 */
-        body { 
-            margin: 0; 
-            overflow: hidden; 
-            font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
-            background-color: #2b0000;
+        :root {
+            /* 紅白機經典配色 */
+            --nes-red: #E60012;
+            --nes-white: #FFFFFF;
+            --nes-black: #000000;
+            --nes-gold: #F8B800;
+            --nes-blue: #5C94FC; /* 經典天空藍 */
+            --nes-ground: #C84C0C; /* 地板磚塊色 */
+            
+            --text-main: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Press Start 2P', 'Noto Sans TC', cursive;
+            background-color: var(--nes-blue); /* 背景改為經典天空藍 */
+            color: var-text-main;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-transform: uppercase;
+            image-rendering: pixelated; /* 強制像素化渲染 */
+        }
+
+        /* --- 1. 復古 8-bit 背景 (CSS 繪製) --- */
+        .nes-background {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* 像素雲朵 (CSS Box Shadow Art) */
+        .pixel-cloud {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: transparent;
             color: #fff;
-            font-weight: bold;
-            image-rendering: pixelated;
+            box-shadow: 
+                20px 0, 24px 0, 28px 0, 32px 0,
+                16px 4px, 36px 4px,
+                12px 8px, 40px 8px,
+                8px 12px, 44px 12px,
+                4px 16px, 48px 16px,
+                8px 20px, 44px 20px,
+                12px 24px, 40px 24px,
+                16px 28px, 36px 28px,
+                20px 32px, 24px 32px, 28px 32px, 32px 32px;
+            transform: scale(4); /* 放大 */
+            opacity: 0.8;
+            animation: cloud-move linear infinite;
         }
 
-        /* 8-Bit UI 元件 */
-        .pixel-box { background: #fff; border: 4px solid #000; color: #000; box-shadow: -4px 0 0 0 #000, 4px 0 0 0 #000, 0 -4px 0 0 #000, 0 4px 0 0 #000; }
-        .pixel-box-dark { background: #000; border: 4px solid #fff; color: #fff; box-shadow: -4px 0 0 0 #fff, 4px 0 0 0 #fff, 0 -4px 0 0 #fff, 0 4px 0 0 #fff; }
-        .pixel-btn { 
-            border: 4px solid rgba(0,0,0,0.4); 
-            cursor: pointer; transition: transform 0.1s; 
-            box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3); 
-            font-family: "Microsoft JhengHei", sans-serif !important;
+        @keyframes cloud-move {
+            from { left: -200px; }
+            to { left: 110%; }
         }
-        .pixel-btn:active { transform: translateY(4px); }
-        .pixel-btn-yellow { background: #facc15; border-color: #854d0e; color: black; text-shadow: none; }
-        .pixel-btn-red { background: #ef4444; border-color: #7f1d1d; color: white; }
 
-        /* --- 3D 紅色流動方格背景 --- */
-        .retro-wrapper {
-            position: fixed; inset: 0; z-index: -10;
-            background: radial-gradient(circle at center, #500000 0%, #1a0000 100%);
-            perspective: 800px; overflow: hidden;
-        }
-        .retro-grid-plane {
-            position: absolute; bottom: -30%; left: -50%; width: 200%; height: 150%;
+        /* 地板磚塊 */
+        .ground-floor {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 60px;
             background-image: 
-                linear-gradient(rgba(255, 30, 30, 0.5) 2px, transparent 2px), 
-                linear-gradient(90deg, rgba(255, 30, 30, 0.5) 2px, transparent 2px);
-            background-size: 80px 80px;
-            transform: rotateX(70deg);
-            animation: grid-move 2s linear infinite;
-            box-shadow: 0 0 150px rgba(255, 0, 0, 0.5);
+                linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px),
+                linear-gradient(335deg, rgba(0,0,0,0.3) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(0,0,0,0.3) 23px, transparent 23px);
+            background-color: var(--nes-ground);
+            background-size: 58px 58px;
+            border-top: 4px solid #000;
+            z-index: 1;
         }
-        .retro-horizon {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, #110000 20%, transparent 60%);
-            z-index: -5; pointer-events: none;
+
+        /* 遠景山脈 (CSS) */
+        .mountains {
+            position: absolute;
+            bottom: 60px; left: 0; width: 100%; height: 200px;
+            background: 
+                linear-gradient(135deg, #00A800 25%, transparent 25%) -50px 0,
+                linear-gradient(225deg, #00A800 25%, transparent 25%) -50px 0,
+                linear-gradient(315deg, #00A800 25%, transparent 25%),
+                linear-gradient(45deg, #00A800 25%, transparent 25%);
+            background-size: 100px 100px;
+            opacity: 0.8;
         }
-        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 80px; } }
 
-        /* Loading */
-        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2b0000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .pixel-spinner { width: 48px; height: 48px; background: #fbbf24; animation: pixel-spin 0.8s steps(4) infinite; box-shadow: 4px 4px 0 #b45309; }
-        @keyframes pixel-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* --- UI 層 (NES 邊框風格) --- */
+        #login-page, #game-page, #winner-modal {
+            position: relative; z-index: 10;
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
 
-        /* --- 遊戲動畫 Keyframes --- */
+        /* 通用 NES 邊框 (黑白雙層) */
+        .nes-box {
+            background: var(--nes-black);
+            color: #fff;
+            padding: 20px;
+            position: relative;
+            /* 模擬像素邊框 */
+            box-shadow:
+                -4px 0 0 0 #fff,
+                4px 0 0 0 #fff,
+                0 -4px 0 0 #fff,
+                0 4px 0 0 #fff,
+                -4px -4px 0 0 #fff,
+                4px 4px 0 0 #fff,
+                4px -4px 0 0 #fff,
+                -4px 4px 0 0 #fff,
+                0 0 0 4px #000; /* 外黑框 */
+            margin: 10px;
+        }
+
+        /* --- 2. QR Code 登入頁 --- */
+        #login-page { transition: opacity 0.5s; justify-content: flex-start; padding-top: 50px; }
         
-        /* 1. 賽馬 */
-        @keyframes horse-gallop { 0% { transform: translateY(0); } 50% { transform: translateY(-4px); } 100% { transform: translateY(0); } }
-        .horse-sprite { animation: horse-gallop 0.15s steps(2) infinite; display: inline-block; transform: scaleX(1); }
-
-        /* 2. 拉霸 (CSS Blur) */
-        @keyframes reel-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
-        .reel-blur { 
-            background: repeating-linear-gradient(180deg, #fff 0, #ccc 50%, #fff 100%);
-            background-size: 100% 120px; /* 增加間距 */
-            animation: reel-move 0.1s linear infinite;
-            filter: blur(2px);
-            color: transparent;
+        .login-header {
+            display: flex; align-items: center; gap: 30px; margin-bottom: 20px;
+            background: var(--nes-black); padding: 30px;
+            border: 4px solid #fff; /* 簡單粗暴的白框 */
         }
 
-        /* 3. 瑪利歐 (慢跑->跳躍) */
-        @keyframes mario-phase1 { 0% { left: -10%; transform: scaleX(1); } 100% { left: 100%; transform: scaleX(1); } }
-        @keyframes mario-phase2 { 0% { left: 100%; transform: scaleX(-1); } 100% { left: 50%; transform: scaleX(-1); } }
-        @keyframes mario-jump-up { 0% { bottom: 20px; } 50% { bottom: 250px; } 100% { bottom: 20px; } }
-        
-        .mario-p1 { animation: mario-phase1 3s linear forwards; }
-        .mario-p2 { animation: mario-phase2 1.5s linear forwards; }
-        .mario-jump-anim { animation: mario-jump-up 0.5s ease-out forwards; }
-        
-        @keyframes block-bump { 0% { transform: translateY(0); } 50% { transform: translateY(-40px); } 100% { transform: translateY(0); } }
-        .block-bump-anim { animation: block-bump 0.3s ease-out; }
-
-        /* 4. 射箭 (Archery) */
-        /* 修正：從左側外(-100%)飛入，停在中間(50% - 修正值) */
-        @keyframes arrow-fly-in { 0% { left: -100%; } 100% { left: calc(50% - 150px); } } 
-        .arrow-anim { animation: arrow-fly-in 0.6s ease-out forwards; }
-        @keyframes target-shake { 0%, 100% { transform: scale(1) translateX(-50%); } 10%, 90% { transform: scale(1.2) translateX(-55%); } 50% { transform: scale(1.1) translateX(-45%); } }
-        .target-hit { animation: target-shake 0.5s ease-in-out; }
-
-        /* 5. 足球 (Soccer) */
-        @keyframes ball-kick { 0% { left: -10%; transform: rotate(0deg); } 100% { left: 80%; transform: rotate(720deg); } }
-        .ball-anim { animation: ball-kick 2.5s ease-out forwards; }
-
-        /* 6. 炸彈 (Bomb) */
-        @keyframes bomb-pulse-grow { 0% { transform: scale(1); filter: hue-rotate(0deg); } 100% { transform: scale(5); filter: hue-rotate(180deg); } }
-        .bomb-growing { animation: bomb-pulse-grow 3s ease-in forwards; }
-
-        /* 7. 流星雨 (Meteor) */
-        @keyframes meteor-cross { 
-            0% { transform: translate(120vw, -120vh) scale(0.5); opacity: 1; } 
-            100% { transform: translate(-20vw, 120vh) scale(1); opacity: 0; } 
+        .qr-box img {
+            display: block; width: 140px; height: 140px; image-rendering: pixelated;
+            border: 4px solid var-nes-white;
         }
-        .meteor-shower-item { position: absolute; top: 0; right: 0; animation: meteor-cross 2s linear infinite; }
-        @keyframes meteor-center-crash { 0% { transform: translate(100vw, -100vh) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2); opacity: 1; top: 50%; left: 50%; } }
-        .meteor-final { position: absolute; top: 0; right: 0; animation: meteor-center-crash 0.8s ease-in forwards; }
 
-        /* 8. 雷達 (Radar) */
-        @keyframes radar-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .radar-line { animation: radar-spin 2s linear infinite; transform-origin: bottom right; }
-        @keyframes red-dot-pop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-        .red-dot-anim { animation: red-dot-pop 0.5s ease-out forwards; }
+        .qr-title {
+            color: var(--nes-white); font-size: 1.5rem; margin-bottom: 15px; line-height: 1.5;
+            text-shadow: 4px 4px 0 var(--nes-red); /* 紅色陰影 */
+        }
 
-        /* 9. 塔羅 (翻牌) */
-        .card-container { perspective: 1000px; }
-        .card-inner { width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
-        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 4px solid #facc15; }
-        .card-front { background: #4c1d95; transform: rotateY(0deg); }
-        .card-back { background: #fff; transform: rotateY(180deg); color: #000; }
-        .flipped .card-inner { transform: rotateY(180deg); }
+        .join-counter { font-size: 1rem; color: #aaa; margin: 10px 0; font-family: 'Noto Sans TC'; }
+        .join-number {
+            font-size: 2rem; color: var(--nes-gold); font-family: 'Press Start 2P';
+            margin-left: 10px; text-shadow: 2px 2px 0 #000;
+        }
 
-        /* 10. 飛機 (Shooter) */
-        @keyframes ship-move { 0% { left: 20%; } 50% { left: 80%; } 100% { left: 20%; } }
-        .ship-moving { animation: ship-move 3s ease-in-out infinite; }
-        @keyframes laser-up { 0% { height: 10px; bottom: 80px; opacity: 1; } 100% { height: 100px; bottom: 100vh; opacity: 0; } }
-        .laser-fire { animation: laser-up 0.3s linear infinite; }
+        /* NES 按鈕 */
+        .btn-retro {
+            font-family: 'Press Start 2P', cursive;
+            background: var(--nes-red); color: #fff; border: 4px solid #fff;
+            padding: 15px 25px; font-size: 1rem; cursor: pointer;
+            box-shadow: 4px 4px 0px 0px #000;
+            position: relative; margin: 5px; transition: transform 0.1s;
+        }
+        .btn-retro:active { transform: translate(4px, 4px); box-shadow: none; }
+        .btn-retro:disabled { background: #555; color: #aaa; border-color: #aaa; cursor: not-allowed; }
+        .btn-blue { background: #0000AA; } /* 經典深藍 */
+        .btn-green { background: #008800; }
 
-        /* 11. 轉盤 (Wheel) */
-        @keyframes wheel-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .wheel-rotating { animation: wheel-spin 0.2s linear infinite; }
+        /* --- 玩家網格 --- */
+        .player-grid-container {
+            width: 90%; max-width: 1000px; flex: 1; overflow-y: auto; padding: 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px; align-content: start;
+            margin-bottom: 80px; /* 避開地板 */
+        }
+        .player-slot {
+            background: #000; border: 4px solid #fff;
+            aspect-ratio: 1 / 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+            animation: slot-pop 0.3s steps(2) forwards;
+        }
+        @keyframes slot-pop { from { transform: scale(0); } to { transform: scale(1); } }
+        .player-icon { font-size: 2.5rem; margin-bottom: 5px; }
+        .player-name { font-size: 0.6rem; color: #fff; text-align: center; word-break: break-all; }
 
-        /* 泡泡 */
-        @keyframes floatUp { 0% { transform: translateY(110vh) scale(0.8); opacity: 0; } 20% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-20vh) scale(1.1); opacity: 0; } }
-        .bubble { position: absolute; bottom: -100px; animation: floatUp linear infinite; }
+        /* --- 3. 抽獎主畫面 --- */
+        #game-page { display: none; opacity: 0; }
+        #game-page.active { display: flex; opacity: 1; }
 
-        /* 中獎愛心飄浮 */
-        @keyframes love-float { 0% { transform: translateY(100%) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-200%) scale(1.5); opacity: 0; } }
-        .love-particle { position: absolute; animation: love-float 4s ease-out forwards; bottom: 0; font-size: 2rem; }
+        .stage-container { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; position: relative; z-index: 5; }
+        
+        .slot-machine-frame {
+            width: 80%; max-width: 800px; height: 400px;
+            background: #000; 
+            border: 8px solid var(--nes-white); /* 粗白框 */
+            box-shadow: 10px 10px 0 #000; /* 硬陰影 */
+            position: relative;
+        }
+        
+        #game-canvas { width: 100%; height: 100%; image-rendering: pixelated; }
+
+        .control-panel {
+            width: 100%; background: #000; padding: 20px;
+            display: flex; justify-content: center; align-items: center; gap: 20px; z-index: 20; 
+            border-top: 4px solid #fff;
+            flex-wrap: wrap;
+        }
+
+        .input-group { 
+            display: flex; align-items: center; gap: 10px; 
+            background: #000; padding: 5px 10px; border: 4px solid #fff;
+            color: #fff; font-size: 0.8rem;
+        }
+        input[type="number"] { 
+            background: transparent; border: none; color: var(--nes-gold);
+            font-size: 1rem; width: 60px; text-align: center; outline: none; 
+            font-family: 'Press Start 2P';
+        }
+
+        /* --- 4. 得獎彈窗 (LEVEL CLEAR) --- */
+        #winner-modal {
+            background: rgba(0,0,0,0.8);
+            display: none; opacity: 0; transition: opacity 0.3s;
+        }
+        #winner-modal.active { display: flex; opacity: 1; }
+        
+        .winner-card {
+            display: flex; flex-direction: column; align-items: center;
+            position: relative; z-index: 10;
+            background: #000;
+            padding: 40px;
+            border: 8px solid var(--nes-gold);
+            box-shadow: 10px 10px 0 #000;
+        }
+        
+        .winner-title {
+            font-size: 2rem; color: var(--nes-gold); margin-bottom: 20px;
+            text-shadow: 4px 4px 0 #b71c1c;
+            animation: blink 0.5s infinite;
+        }
+
+        .winner-name-big { 
+            font-size: 3.5rem; color: #fff; margin: 20px 0;
+            text-shadow: 4px 4px 0 var(--nes-blue);
+            white-space: nowrap; 
+        }
+
+        /* --- 管理彈窗 --- */
+        #manage-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: none; align-items: center; justify-content: center; }
+        #manage-modal.active { display: flex; }
+        .manage-box { 
+            background: #000; padding: 20px; width: 90%; max-width: 600px; height: 70vh; 
+            display: flex; flex-direction: column; border: 4px solid #fff; color: #fff;
+        }
+        .user-list-container { flex: 1; overflow-y: auto; background: #000; margin: 15px 0; border: 2px solid #fff; padding: 10px; font-family: 'Noto Sans TC'; }
+        .user-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 2px dashed #333; color: #fff; align-items: center; }
+        .excluded-text { text-decoration: line-through; color: #666; }
+        
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1500; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <!-- 3D 背景 -->
-    <div class="retro-wrapper">
-        <div class="retro-horizon"></div>
-        <div class="retro-grid-plane"></div>
-    </div>
 
-    <div id="loading-screen">
-        <div class="pixel-spinner mb-8"></div>
-        <div class="text-yellow-400 text-xl font-bold">系統載入中...</div>
-    </div>
-
-    <script type="text/babel">
-        // ==========================================
-        //  TODO: 填入 Render 網址 (本地測試可留空)
-        // ==========================================
-        const BACKEND_URL = ""; 
-        // ==========================================
-
-        const { useState, useEffect, useRef, useMemo, Component } = React;
-        const { createRoot } = ReactDOM;
+    <!-- 0. 復古 NES 背景層 -->
+    <div class="nes-background">
+        <!-- 幾朵像素雲 -->
+        <div class="pixel-cloud" style="top: 10%; animation-duration: 20s;"></div>
+        <div class="pixel-cloud" style="top: 25%; animation-duration: 25s; transform: scale(3); opacity: 0.6;"></div>
+        <div class="pixel-cloud" style="top: 15%; animation-duration: 18s; transform: scale(5); opacity: 0.4;"></div>
         
-        const AVATARS = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🦄"];
-        const removeLoading = () => { const el = document.getElementById('loading-screen'); if(el) { el.style.opacity = '0'; setTimeout(() => el.style.display = 'none', 500); }};
+        <div class="mountains"></div>
+        <div class="ground-floor"></div>
+    </div>
 
-        // --- 音效管理器 (Web Audio API) ---
-        const AudioManager = {
-            ctx: null,
-            init: function() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (this.ctx.state === 'suspended') this.ctx.resume();
-            },
-            playTone: function(freq, type, duration) {
-                if(!this.ctx) this.init();
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + duration);
-            },
-            playTension: function() {
-                // 模擬緊張音效 (循環低頻)
-                this.init();
-                // 這裡簡化為不播放持續音，避免瀏覽器阻擋，改為揭曉時播放音效
-            },
-            playWin: function() {
-                this.init();
-                // 勝利音效 (C Major Arpeggio)
-                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
-                    setTimeout(() => this.playTone(f, 'square', 0.5), i * 100);
+    <!-- 1. 登入畫面 (Select Player) -->
+    <div id="login-page">
+        <!-- 上方資訊欄 -->
+        <div class="login-header nes-box">
+            <div style="text-align:center;">
+                <div class="qr-box">
+                    <img id="qr-img" src="" alt="QR">
+                </div>
+                <div style="font-size:0.6rem; color:#fff; margin-top:10px;">SCAN TO START</div>
+            </div>
+            <div class="login-info">
+                <div class="qr-title">PLAYER SELECT</div>
+                <div class="join-counter">
+                    P1 READY: <span id="join-count" class="join-number">0</span>
+                </div>
+                <button class="btn-retro btn-blue" onclick="enterGame()">PRESS START</button>
+            </div>
+        </div>
+
+        <!-- 玩家網格 -->
+        <div class="player-grid-container" id="player-grid"></div>
+    </div>
+
+    <!-- 2. 遊戲主控台 -->
+    <div id="game-page">
+        <div class="stage-container">
+            <div class="slot-machine-frame">
+                <canvas id="game-canvas"></canvas>
+            </div>
+        </div>
+        <div class="control-panel">
+            <button id="draw-btn" class="btn-retro" onclick="startMultiDraw()">SPIN!</button>
+            <div class="input-group">
+                <label>COUNT:</label>
+                <input type="number" id="draw-count" value="1" min="1" max="50">
+            </div>
+            <button class="btn-retro btn-green" onclick="toggleMusic()" id="music-btn">SOUND: ON</button>
+            <button class="btn-retro" onclick="openManageModal()">PLAYERS</button>
+            <button class="btn-retro" style="background:#555;" onclick="resetEvent()">RESET</button>
+            
+            <div style="width: 100%; text-align: center; margin-top: 10px; color: var(--nes-gold); font-size: 0.8rem;">
+                CREDITS: <span id="game-join-count">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 得獎彈窗 -->
+    <div id="winner-modal" onclick="closeWinnerModal()">
+        <div class="winner-card" onclick="event.stopPropagation()">
+            <div class="winner-title">YOU WIN!</div>
+            
+            <!-- Lottie 播放器 -->
+            <lottie-player id="winner-lottie"
+                background="transparent" 
+                speed="1" 
+                style="width: 400px; height: 400px;" 
+                loop 
+                autoplay>
+            </lottie-player>
+
+            <div class="winner-name-big" id="modal-winner-name">WINNER</div>
+            <div style="margin-top:20px;">
+                <button class="btn-retro btn-blue" onclick="closeWinnerModal()">NEXT ROUND</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理彈窗 -->
+    <div id="manage-modal" onclick="closeManageModal()">
+        <div class="manage-box" onclick="event.stopPropagation()">
+            <h3 style="color:var(--nes-yellow); margin-bottom:10px;">ROSTER</h3>
+            <div class="user-list-container" id="manage-list"></div>
+            <div style="text-align:right;">
+                <button class="btn-retro" onclick="closeManageModal()">EXIT</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script>
+        const socket = io();
+        let users = [];
+        let winners = []; 
+        let localExcluded = new Set();
+        let isDrawing = false;
+        let animState = 'idle'; 
+        let scrollY = 0;
+
+        const bgmAudio = new Audio('https://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/race1.ogg'); 
+        bgmAudio.loop = true;
+        bgmAudio.volume = 0.3;
+        let isMusicOn = true;
+
+        const winnerAnimations = [
+            "Emos Spin.json",
+            "Monitor screen with video game level up.json",
+            "Cat fishing on moon.json",
+            "Generator.json",
+            "Target.json",
+            "Super Mario.json",
+            "football Goal.json",
+            "Formula One.json"
+        ];
+
+        // 復古圖示
+        const retroIcons = ["👾", "🕹️", "🚀", "💎", "🤖", "👽", "👻", "💣", "📀", "💾", "🎮", "🔋", "⚡", "🔥", "🍄", "⭐"];
+
+        const loginPage = document.getElementById('login-page');
+        const gamePage = document.getElementById('game-page');
+        const joinCountEl = document.getElementById('join-count');
+        const gameJoinCountEl = document.getElementById('game-join-count');
+        const winnerModal = document.getElementById('winner-modal');
+        const modalWinnerName = document.getElementById('modal-winner-name');
+        const drawBtn = document.getElementById('draw-btn');
+        const winnerLottiePlayer = document.getElementById('winner-lottie');
+        const playerGridEl = document.getElementById('player-grid');
+
+        const mobileUrl = window.location.origin + "/mobile.html";
+        document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(mobileUrl)}`;
+
+        socket.on('connect', () => { socket.emit('admin_init'); });
+        
+        socket.on('update_user_list', (u) => { 
+            users = u; 
+            updateCounters(); 
+            renderPlayerGrid(); 
+            if(document.getElementById('manage-modal').classList.contains('active')) renderManageList();
+        });
+        
+        socket.on('update_winners', (w) => { winners = w; });
+        socket.on('draw_result', (data) => {
+            winners.push(data.winnerName);
+            stopRollingAndShowWinner(data.winnerName);
+        });
+        socket.on('admin_draw_error', (msg) => { alert(msg); isDrawing=false; resetUI(); });
+        socket.on('event_reset', () => location.reload());
+
+        function toggleMusic() {
+            isMusicOn = !isMusicOn;
+            document.getElementById('music-btn').textContent = isMusicOn ? "SOUND: ON" : "SOUND: OFF";
+            if (!isMusicOn) bgmAudio.pause();
+            else if(!isDrawing) bgmAudio.play().catch(()=>{});
+        }
+
+        function renderPlayerGrid() {
+            playerGridEl.innerHTML = '';
+            users.forEach((user, index) => {
+                const slot = document.createElement('div');
+                slot.className = 'player-slot';
+                const icon = retroIcons[index % retroIcons.length]; 
+                slot.innerHTML = `<div class="player-icon">${icon}</div><div class="player-name">${user}</div>`;
+                playerGridEl.appendChild(slot);
+            });
+        }
+
+        let modalResolver = null;
+        async function startMultiDraw() {
+            const validCount = users.filter(u => !winners.includes(u) && !localExcluded.has(u)).length;
+            if(validCount === 0) { alert("NO PLAYERS!"); return; }
+            if(isDrawing) return;
+            
+            const count = parseInt(document.getElementById('draw-count').value) || 1;
+            
+            isDrawing=true; drawBtn.disabled=true;
+            if(isMusicOn) bgmAudio.pause();
+
+            for(let i=0; i<count; i++) {
+                drawBtn.textContent = `DRAW (${i+1}/${count})`;
+                await new Promise(resolve => {
+                    socket.emit('admin_start_rolling');
+                    startRollingAnim();
+                    setTimeout(() => { socket.emit('admin_perform_draw'); resolve(); }, 3500);
                 });
-            },
-            speak: function(text) {
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                    const utter = new SpeechSynthesisUtterance(text);
-                    utter.lang = 'zh-TW';
-                    window.speechSynthesis.speak(utter);
+                await new Promise(r => modalResolver = r); 
+                await new Promise(r => setTimeout(r, 500));
+            }
+            resetUI();
+            speak("抽獎結束");
+        }
+
+        function resetUI() { 
+            isDrawing=false; drawBtn.disabled=false; drawBtn.textContent="SPIN!"; animState='idle';
+            if(isMusicOn) bgmAudio.play().catch(()=>{});
+        }
+        function resetEvent() { if(confirm("RESET GAME?")) socket.emit('admin_reset'); }
+
+        function stopRollingAndShowWinner(name) {
+            animState='idle'; modalWinnerName.textContent=name;
+            const randomAnim = winnerAnimations[Math.floor(Math.random() * winnerAnimations.length)];
+            winnerLottiePlayer.load(randomAnim);
+
+            winnerModal.classList.add('active');
+            if(isMusicOn) bgmAudio.play().catch(()=>{});
+            playWinSound(); speak("恭喜 "+name); fireConfetti();
+        }
+        function closeWinnerModal() {
+            winnerModal.classList.remove('active');
+            if(modalResolver) { modalResolver(); modalResolver=null; } else { resetUI(); }
+        }
+
+        // Canvas (Pixel Art Style)
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        function initGameVisuals() { resizeCanvas(); window.addEventListener('resize', resizeCanvas); drawLoop(); }
+        function resizeCanvas() { canvas.width = canvas.parentElement.offsetWidth; canvas.height = canvas.parentElement.offsetHeight; }
+        
+        function drawLoop() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            const cx=canvas.width/2; const cy=canvas.height/2;
+            const validUsers = users.filter(u => !winners.includes(u) && !localExcluded.has(u));
+            const displayList = validUsers.length > 0 ? validUsers : ["INSERT COIN"];
+
+            ctx.font = '30px "Press Start 2P"';
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+
+            if(animState==='idle') {
+                const t=Date.now()*0.002;
+                for(let i=0; i<3; i++){
+                    const idx = (Math.floor(t)+i)%displayList.length;
+                    const yOff = Math.sin(t+i)*40;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + Math.sin(t+i)*0.3})`;
+                    if(displayList[idx]) ctx.fillText(displayList[idx], cx, cy+(i-1)*60+yOff);
+                }
+            } else if(animState==='rolling') {
+                scrollY+=80;
+                const itemH=100;
+                ctx.font = '40px "Press Start 2P"';
+                for(let i=-2; i<=2; i++){
+                    const idx=Math.floor(scrollY/itemH)+i;
+                    const safeIdx=((idx%displayList.length)+displayList.length)%displayList.length;
+                    const y=cy+(i*itemH)+(scrollY%itemH);
+                    ctx.fillStyle = (i===0) ? '#ff0055' : '#00f2ff';
+                    if(displayList[safeIdx]) ctx.fillText(displayList[safeIdx], cx, y);
                 }
             }
-        };
+            requestAnimationFrame(drawLoop);
+        }
 
-        // --- Socket Hook ---
-        const useSocket = (roomId, onEvent) => {
-            const socketRef = useRef(null);
-            const [status, setStatus] = useState('connecting');
-            useEffect(() => {
-                if(!roomId || typeof io === 'undefined') return;
-                const connectionUrl = BACKEND_URL || window.location.origin;
-                const socket = io(connectionUrl, { reconnectionAttempts: 5, timeout: 10000, transports: ['websocket', 'polling'] }); 
-                socketRef.current = socket;
-                
-                socket.on('connect', () => { setStatus('connected'); socket.emit('join_room', roomId); removeLoading(); });
-                socket.on('disconnect', () => setStatus('disconnected'));
-                
-                socket.on('player_list_update', (d) => onEvent && onEvent('player_list_update', d));
-                socket.on('game_status_update', (d) => onEvent && onEvent('game_status_update', d));
-                socket.on('init_data', (d) => onEvent && onEvent('init_data', d));
-                socket.on('game_reset', (d) => onEvent && onEvent('game_reset', d));
-                
-                return () => socket.disconnect();
-            }, [roomId]);
-            const emit = (e, d) => { if(socketRef.current) socketRef.current.emit(e, { roomId, ...d }); };
-            return { status, emit };
-        };
+        function startRollingAnim() {
+            animState='rolling'; let d=3500; let s=Date.now();
+            const loop=()=>{
+                if(animState!=='rolling') return;
+                let p=(Date.now()-s)/d;
+                if(p<1){ playTick(150 + p*300); setTimeout(loop, Math.max(50, 100*(1-p*0.8))); }
+            }; loop();
+        }
 
-        // --- 視覺組件 (10種模式) ---
-        const VisualComponent = ({ candidates, targetName, isRolling, mode, winnerObj }) => {
-            const [display, setDisplay] = useState("READY");
-            
-            // 動畫狀態
-            const [horses, setHorses] = useState([]);
-            const [slotStops, setSlotStops] = useState([false, false, false]);
-            const [marioPhase, setMarioPhase] = useState(0); // 0:wait, 1:runR, 2:runL, 3:wait, 4:jump
-            const [shooter, setShooter] = useState({x: 50, laser: false, boom: false});
-            const [archery, setArchery] = useState({shoot: false, hit: false});
-            const [meteorStage, setMeteorStage] = useState(0); 
-            const [cardFlipState, setCardFlipState] = useState([0,0,0]); // 0:背 1:鬼 2:禮物
-            const [radarDot, setRadarDot] = useState(false);
-            const [soccer, setSoccer] = useState({kick: false, goal: false});
-            const [bomb, setBomb] = useState({size: 1, boom: false});
-            const [wheelSpin, setWheelSpin] = useState(true);
-
-            // 格式化顯示 (僅顯示名字，不顯示編號)
-            const getDisplayString = (player) => {
-                const index = candidates.findIndex(p => p.id === player.id) + 1;
-                return `No.${index} - ${player.name}`;
-            };
-            
-            useEffect(() => {
-                let interval;
-                if (isRolling) {
-                    // --- 初始化狀態 ---
-                    setMarioPhase(1); // 開始跑 Phase 1
-                    setSlotStops([false, false, false]);
-                    setShooter({x: 50, laser: false, boom: false}); 
-                    setArchery({shoot: false, hit: false});
-                    setMeteorStage(0);
-                    setCardFlipState([0,0,0]);
-                    setRadarDot(false);
-                    setSoccer({kick: false, goal: false});
-                    setBomb({size: 1, boom: false});
-                    setWheelSpin(true);
-
-                    if (mode === 'race') {
-                        const racers = candidates.slice(0, 5).map((p, idx) => ({...p, displayName: p.name, progress: 0}));
-                        while(racers.length < 5) racers.push({name:'CPU', displayName:`NPC`, avatar:'🐎', progress:0});
-                        setHorses(racers);
-                        interval = setInterval(() => {
-                            setHorses(prev => prev.map(h => ({...h, progress: Math.min(88, h.progress + Math.random() * 2)})));
-                        }, 100);
-                    } 
-                    else if (mode === 'adventure') {
-                        // 瑪利歐動畫由 CSS Animation 控制，這裡不需要 JS 循環
-                    }
-                    else if (mode === 'shooter') {
-                        interval = setInterval(() => {
-                            setShooter(prev => ({...prev, x: (prev.x + 2) % 80 + 10}));
-                        }, 50);
-                    }
-                    else if (mode === 'bomb') {
-                        interval = setInterval(() => setBomb(prev => ({...prev, size: Math.min(8, prev.size + 0.05)})), 100);
-                    }
-                    else if (mode === 'radar') {
-                        // 雷達紅點早點出來
-                        setTimeout(() => setRadarDot(true), 2000);
-                    }
-                    else if (!['slots', 'retro', 'magic'].includes(mode)) {
-                        interval = setInterval(() => {
-                            const randomIdx = Math.floor(Math.random() * candidates.length);
-                            setDisplay(`No.${randomIdx + 1}`);
-                        }, 100);
-                    }
-                } 
-                else if (targetName) {
-                    // --- 揭曉動畫 (時間軸) ---
-                    setDisplay(targetName);
-                    
-                    if (mode === 'race' && winnerObj) {
-                        setHorses(prev => prev.map(h => h.name === winnerObj.name ? {...h, progress: 98} : h));
-                    }
-                    if (mode === 'slots') {
-                        setTimeout(() => setSlotStops([true, false, false]), 500);
-                        setTimeout(() => setSlotStops([true, true, false]), 1500);
-                        setTimeout(() => setSlotStops([true, true, true]), 2500);
-                    }
-                    if (mode === 'adventure') {
-                        setMarioPhase(2); // 跑回頭 (CSS animation delay 會處理)
-                        setTimeout(() => setMarioPhase(3), 3000); // 停在中間
-                        setTimeout(() => setMarioPhase(4), 3100); // 跳躍頂磚
-                    }
-                    if (mode === 'shooter') {
-                        setShooter(prev => ({...prev, x: 50, laser: true}));
-                        setTimeout(() => setShooter(prev => ({...prev, boom: true})), 600);
-                    }
-                    if (mode === 'archery') {
-                        setArchery({shoot: true, hit: false});
-                        setTimeout(() => setArchery(prev => ({...prev, hit: true})), 800);
-                    }
-                    if (mode === 'meteor') {
-                        setMeteorStage(1);
-                        setTimeout(() => setMeteorStage(2), 1000);
-                    }
-                    if (mode === 'magic') {
-                        setTimeout(() => setCardFlipState([1, 0, 0]), 500);
-                        setTimeout(() => setCardFlipState([1, 1, 0]), 1500);
-                        setTimeout(() => setCardFlipState([1, 1, 2]), 2500);
-                    }
-                    if (mode === 'radar') {
-                        setRadarDot(true);
-                    }
-                    if (mode === 'soccer') {
-                        setSoccer({kick: true, goal: false});
-                        setTimeout(() => setSoccer(prev => ({...prev, goal: true})), 1200);
-                    }
-                    if (mode === 'bomb') {
-                        setBomb(prev => ({...prev, size: 10}));
-                        setTimeout(() => setBomb(prev => ({...prev, boom: true})), 500);
-                    }
-                    if (mode === 'retro') {
-                        setWheelSpin(false);
-                    }
-                }
-                return () => clearInterval(interval);
-            }, [isRolling, targetName, mode, winnerObj, candidates]);
-
-            // --- 渲染 ---
-
-            // 1. 瑪利歐 (Adventure)
-            if (mode === 'adventure') return (
-                <div className="w-full h-full relative flex flex-col justify-end pb-20">
-                     <div className="absolute top-[30%] left-1/2 -translate-x-1/2 flex gap-4">
-                         <div className={`w-24 h-24 bg-yellow-600 border-4 border-black flex items-center justify-center text-white font-bold text-5xl ${marioPhase===4?'block-bump-anim':''}`}>?</div>
-                     </div>
-                     <div className="h-4 bg-red-900 border-t-4 border-black w-full relative z-10"></div>
-                     
-                     <div className={`absolute bottom-[20px] text-9xl 
-                        ${marioPhase===1 ? 'mario-p1' : ''} 
-                        ${marioPhase===2 ? 'mario-p2' : ''} 
-                        ${marioPhase===4 ? 'mario-jump-anim left-1/2 -translate-x-1/2' : ''}`}
-                        style={{left: marioPhase===0?'-10%': marioPhase===3?'50%': undefined }}
-                     >
-                         🚶🏼‍➡️
-                     </div>
-
-                     {!isRolling && targetName && marioPhase===4 && (
-                        <div className="absolute top-[10%] left-1/2 -translate-x-1/2 animate__animated animate__bounceIn pixel-box p-4 text-3xl font-bold text-black whitespace-nowrap">{getDisplayString(winnerObj)}</div>
-                     )}
-                </div>
-            );
-
-            // 2. 拉霸 (Slots)
-            if (mode === 'slots') {
-                const strip = [...candidates, ...candidates, ...candidates].slice(0, 40);
-                return (
-                    <div className="flex justify-center gap-6 bg-yellow-600 p-8 rounded-[2rem] border-8 border-yellow-800 pixel-box shadow-2xl">
-                        {[0, 1, 2].map(col => (
-                            <div key={col} className="bg-white h-56 w-32 rounded border-4 border-black relative overflow-hidden">
-                                <div className={`w-full ${!slotStops[col] ? 'reel-spinning' : ''}`} style={{ transform: slotStops[col] ? 'translateY(0)' : undefined }}> 
-                                    {!slotStops[col] ? <div className="reel-blur h-full"></div> : 
-                                    <div className="h-56 flex flex-col items-center justify-center animate__animated animate__bounceIn"><div className="text-7xl mb-2">{winnerObj?.avatar || '💎'}</div><div className="text-xl font-bold text-red-600 mt-2 truncate w-full text-center px-1">{winnerObj?.name}</div></div>}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                );
-            }
-
-            // 3. 賽馬 (Race)
-            if (mode === 'race') return (
-                <div className="w-full max-w-5xl flex flex-col gap-3 relative p-6 bg-black/40 border-4 border-white pixel-box">
-                    <div className="absolute right-10 top-0 bottom-0 w-2 bg-yellow-400 z-10 opacity-70 border-r-4 border-dashed border-black"></div>
-                    {horses.map((h, i) => (
-                        <div key={i} className="flex items-center gap-2 relative border-b-2 border-white/20 pb-1 h-16">
-                            <div className="w-32 text-right text-lg font-bold text-white bg-black px-1 truncate mr-2">{h.name}</div>
-                            <div className="flex-1 relative h-full">
-                                <div className="absolute top-1/2 -translate-y-1/2 text-4xl transition-all duration-300 ease-linear transform -translate-x-full horse-sprite" style={{left: `${h.progress}%`}}>{h.avatar}</div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            );
-
-            // 4. 飛機射擊 (Shooter)
-            if (mode === 'shooter') return (
-                <div className="w-full h-full relative overflow-hidden">
-                     <div className="absolute top-20 w-full flex justify-center gap-20">
-                        {[0,1,2].map(i => <div key={i} className={`text-8xl transition-all ${!isRolling && shooter.boom && i===1 ? 'exploding' : 'animate-bounce'}`}>{!isRolling && shooter.boom && i===1 ? '💥' : '👾'}</div>)}
-                     </div>
-                     <div className="absolute bottom-10 text-8xl transition-all duration-100" style={{left: `${shooter.x}%`}}>🚀</div>
-                     {isRolling && <div className="absolute bottom-32 w-2 h-full bg-green-500 laser-beam laser-fire" style={{left: `${shooter.x}%`}}></div>}
-                     {shooter.laser && <div className="absolute bottom-32 w-4 h-full bg-red-500 laser-beam" style={{left: '50%'}}></div>}
-                     
-                     {!isRolling && shooter.boom && (
-                         <div className="absolute top-20 left-1/2 -translate-x-1/2 animate__animated animate__zoomIn z-20">
-                             <div className="pixel-box px-6 py-4 text-4xl text-black font-bold">{getDisplayString(winnerObj)}</div>
-                         </div>
-                     )}
-                </div>
-            );
-
-            // 5. 射箭 (Archery)
-            if (mode === 'archery') return (
-                <div className="w-full h-full relative flex items-center justify-center">
-                    <div className={`w-64 h-64 bg-white rounded-full border-[20px] border-red-600 flex items-center justify-center shadow-xl ${archery.hit?'target-hit':''}`}>
-                         <div className="w-32 h-32 bg-white rounded-full border-[20px] border-blue-600 flex items-center justify-center">
-                             <div className="w-10 h-10 bg-yellow-400 rounded-full border-[5px] border-black"></div>
-                         </div>
-                    </div>
-                    {/* 箭矢 */}
-                    <div className={`absolute top-1/2 text-6xl font-bold transition-all whitespace-nowrap text-white drop-shadow-md ${archery.shoot ? 'arrow-anim' : 'hidden'}`} 
-                         style={{transform: 'translateY(-50%)', display: isRolling?'none':'block'}}>
-                        +=========&gt;
-                    </div>
-                    {archery.hit && <div className="absolute top-[25%] pixel-box p-4 text-3xl text-black font-bold animate__animated animate__bounceIn">{getDisplayString(winnerObj)}</div>}
-                </div>
-            );
-
-            // 6. 流星雨 (Meteor)
-            if (mode === 'meteor') return (
-                <div className="w-full h-full relative overflow-hidden">
-                    {/* 背景流星雨 (全螢幕) */}
-                    {isRolling && Array.from({length:15}).map((_,i) => {
-                        const icons = ['🌟','⭐️','✨','🌈'];
-                        return <div key={i} className="absolute text-4xl meteor-shower-item twinkle-star" 
-                             style={{left: `${Math.random()*100}%`, top: '-10%', animationDelay: `${Math.random()}s`, animationDuration: `${0.8+Math.random()}s`}}>{icons[i%4]}</div>
-                    })}
-                    {meteorStage >= 1 && (
-                        <div className={`absolute text-[150px] meteor-final ${meteorStage===2?'hidden':''}`}>☄️</div>
-                    )}
-                    {meteorStage === 2 && (
-                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center animate__animated animate__zoomIn">
-                             <div className="text-[150px] mb-4">💥</div>
-                             <div className="pixel-box px-8 py-4 text-5xl text-black font-bold">{getDisplayString(winnerObj)}</div>
-                        </div>
-                    )}
-                </div>
-            );
-
-            // 7. 塔羅 (Tarot)
-            if (mode === 'magic') return (
-                <div className="flex items-center justify-center h-full">
-                     <div className="flex gap-8">
-                        {[0,1,2].map(i => (
-                            <div key={i} className={`relative w-48 h-72 card-container ${isRolling?'shuffling':''}`} style={{animationDelay:`${i*0.1}s`}}>
-                                <div className={`w-full h-full card-inner ${cardFlipState[i] > 0 ? 'flipped' : ''}`}>
-                                    <div className="card-front absolute inset-0 bg-purple-900 rounded-xl border-4 border-yellow-400 flex items-center justify-center backface-hidden"><div className="text-8xl opacity-50 animate-pulse">🔮</div></div>
-                                    <div className="card-back absolute inset-0 bg-white rounded-xl border-8 border-purple-600 flex flex-col items-center justify-center backface-hidden text-black">
-                                        {cardFlipState[i] === 1 ? <div className="text-6xl animate-bounce">👻</div> : 
-                                         cardFlipState[i] === 2 ? <><div className="text-6xl mb-4 animate-bounce">🎁</div><div className="text-3xl font-bold">{winnerObj?.name}</div></> : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                     </div>
-                </div>
-            );
-
-            // 8. 雷達 (Radar)
-            if (mode === 'radar') return (
-                 <div className="w-[600px] h-[600px] rounded-full border-4 border-green-500 bg-black/80 relative flex items-center justify-center overflow-hidden mx-auto">
-                    <div className={`absolute w-full h-full border-b-2 border-green-500 origin-center ${isRolling ? 'animate-spin' : ''}`} style={{background: 'linear-gradient(to bottom, transparent 50%, rgba(34,197,94,0.2) 50%)'}}></div>
-                    {radarDot && (
-                        <div className="z-10 text-center animate__animated animate__zoomIn">
-                            <div className="w-8 h-8 bg-red-600 rounded-full mx-auto mb-4 animate-ping"></div>
-                            <div className="text-8xl mb-4">{winnerObj?.avatar}</div>
-                            <div className="text-green-400 font-bold text-4xl pixel-box px-6 py-2 bg-black border-green-500">{getDisplayString(winnerObj)}</div>
-                        </div>
-                    )}
-                </div>
-            );
-
-            // 9. 足球 (Soccer)
-            if (mode === 'soccer') return (
-                <div className="w-full h-full relative flex items-center justify-between px-20">
-                     <div className={`text-9xl absolute ${soccer.kick ? 'ball-anim' : 'ball-bobbing'} left-[10%]`} style={{top: '50%'}}>⚽️</div>
-                     <div className={`text-[10rem] absolute right-10 ${soccer.goal ? 'net-hit' : ''}`} style={{top: '50%', transform: 'translateY(-50%)'}}>🥅</div>
-                     {soccer.goal && (
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pixel-box p-6 text-4xl text-black font-bold animate__animated animate__zoomIn">GOAL! {getDisplayString(winnerObj)}</div>
-                     )}
-                </div>
-            );
-
-            // 10. 炸彈 (Bomb)
-            if (mode === 'bomb') return (
-                 <div className="flex flex-col items-center justify-center h-full">
-                     {bomb.boom ? (
-                         <div className="bomb-boom text-center">
-                             <div className="text-9xl mb-4">💥</div>
-                             <div className="pixel-box px-8 py-4 text-5xl text-black font-bold">{getDisplayString(winnerObj)}</div>
-                         </div>
-                     ) : (
-                         <div className="text-[100px] bomb-anim" style={{transform: `scale(${bomb.size})`}}>💣</div>
-                     )}
-                 </div>
-            );
-
-            // 11. 轉盤 (Wheel)
-            if (mode === 'retro') return (
-                <div className="relative flex items-center justify-center">
-                    <div className="absolute top-[-50px] text-8xl z-20 text-white drop-shadow-xl">⬇</div>
-                    <div className={`w-[500px] h-[500px] rounded-full border-[16px] border-yellow-500 bg-red-800 flex items-center justify-center shadow-2xl overflow-hidden relative ${isRolling ? 'wheel-spinning' : ''}`} style={{animationDuration: isRolling ? '0.2s' : '0s'}}>
-                         <div className="absolute inset-0 bg-[conic-gradient(from_0deg,#ff0000_0deg_36deg,#ffffff_36deg_72deg,#ff0000_72deg_108deg,#ffffff_108deg_144deg,#ff0000_144deg_180deg,#ffffff_180deg_216deg,#ff0000_216deg_252deg,#ffffff_252deg_288deg,#ff0000_288deg_324deg,#ffffff_324deg_360deg)] opacity-30"></div>
-                         <div className={`w-56 h-56 bg-white rounded-full flex flex-col items-center justify-center z-10 border-8 border-gray-200`}>
-                             {!wheelSpin && targetName ? <div className="text-center"><div className="text-6xl mb-2">{winnerObj?.avatar}</div><div className="text-2xl font-bold text-red-600">{getDisplayString(winnerObj)}</div></div> : <div className="text-4xl font-black text-gray-500">SPIN</div>}
-                         </div>
-                    </div>
-                </div>
-            );
-
-            return null;
-        };
-
-        // 浮動表情符號
-        const FloatingHearts = () => {
-            const icons = ["💕", "💘", "😇", "🥰", "🤪"];
-            const items = useMemo(() => Array.from({length: 20}).map((_,i)=>({
-                id: i, icon: icons[i%icons.length], 
-                left: Math.random()*100, delay: Math.random()*2, dur: 3+Math.random()*2
-            })), []);
-            return (
-                <div className="absolute inset-0 pointer-events-none z-0">
-                    {items.map(p => <div key={p.id} className="love-particle" style={{left:`${p.left}%`, bottom:'0', animationDelay:`${p.delay}s`, animationDuration:`${p.dur}s`}}>{p.icon}</div>)}
-                </div>
-            );
-        };
-
-        // --- 1. Index Page ---
-        const IndexPage = ({ onStartHost, initialPlayers }) => {
-            const [qrUrl, setQrUrl] = useState('');
-            const [roomId, setRoomId] = useState('');
-            const [players, setPlayers] = useState(initialPlayers || []);
-            
-            const { status } = useSocket(roomId, (event, data) => {
-                if (event === 'player_list_update') setPlayers(data);
-                else if (event === 'init_data' && data.players) setPlayers(data.players || []);
-                else if (event === 'game_reset') setPlayers([]);
+        function openManageModal(){ document.getElementById('manage-modal').classList.add('active'); renderManageList(); }
+        function closeManageModal(){ document.getElementById('manage-modal').classList.remove('active'); }
+        function renderManageList(){
+            const el=document.getElementById('manage-list'); el.innerHTML='';
+            if(users.length===0) { el.innerHTML='<div style="padding:20px;text-align:center;">EMPTY</div>'; return; }
+            users.forEach(u=>{
+                const isEx=localExcluded.has(u); const isWon=winners.includes(u);
+                const row=document.createElement('div'); row.className='user-row';
+                let btnHtml = `<button class="btn-retro" style="font-size:0.6rem; padding:5px 10px; background:${isEx?'#333':'#c62828'}" onclick="toggleEx('${u}')">${isEx?'RESTORE':'KICK'}</button>`;
+                if(isWon) btnHtml = `<span style="color:#ffee00">WINNER</span>`;
+                row.innerHTML=`<span class="${isEx?'excluded-text':''}">${u}</span>${btnHtml}`;
+                el.appendChild(row);
             });
+        }
+        function toggleEx(n){ if(localExcluded.has(n)) localExcluded.delete(n); else localExcluded.add(n); socket.emit('admin_toggle_exclude',n); renderManageList(); }
 
-            useEffect(() => {
-                let rid = new URLSearchParams(window.location.search).get('room');
-                if(!rid) rid = Math.floor(1000 + Math.random() * 9000).toString();
-                setRoomId(rid);
-                const url = `${window.location.href.split('?')[0]}?mode=player&room=${rid}`;
-                if(typeof QRCode !== 'undefined') QRCode.toDataURL(url, { width: 300, margin: 2, color: { dark: '#000000', light: '#ffffff' } }, (e, u) => !e && setQrUrl(u));
-            }, []);
-
-            const PlayerBubble = ({ p }) => {
-                const style = useMemo(() => ({ width: `${80+Math.random()*60}px`, height: `${80+Math.random()*60}px`, left: `${5+Math.random()*90}%`, animationDuration: `${10+Math.random()*15}s`, animationDelay: `${Math.random()*-15}s` }), []);
-                return <div className="bubble flex flex-col items-center justify-center bg-yellow-500/20 border border-yellow-300/40 rounded-full text-center shadow-lg backdrop-blur-sm z-0" style={style}><div className="text-3xl drop-shadow">{p.avatar}</div><div className="text-white font-bold text-sm mt-1 px-2 truncate w-full shadow-black drop-shadow">{p.name}</div></div>;
-            };
-
-            return (
-                <div className="min-h-screen relative overflow-hidden">
-                    <div className="retro-grid-mask"></div><div className="retro-grid-container"><div className="retro-grid"></div></div>
-
-                    <div className="absolute top-4 left-4 z-20 flex gap-2"><span className="pixel-box px-2 py-1 text-xs bg-blue-300 text-black">ROOM: {roomId}</span></div>
-                    <div className="absolute inset-0 pointer-events-none">{players.map((p,i)=><PlayerBubble key={i} p={p}/>)}</div>
-                    <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
-                        <div className="text-center mb-8 animate__animated animate__bounceIn"><div className="inline-block bg-red-900/80 px-8 py-2 rounded-full border border-yellow-500/50 text-yellow-300 font-bold mb-6">歡迎蒞臨</div><h1 className="text-4xl md:text-6xl text-white drop-shadow-[4px_4px_0_#000] leading-tight mb-4">家防中心<br/>尾牙盛典</h1><div className="inline-block bg-red-600 border-4 border-white text-white px-4 py-2 text-sm shadow-[4px_4px_0_#000]">SCAN QR TO JOIN</div></div>
-                        <div className="pixel-box p-4 bg-white flex flex-col items-center gap-4 transform hover:scale-105 transition-transform">
-                            <div className="bg-white p-4 rounded-3xl shadow-inner">{qrUrl ? <img src={qrUrl} className="w-48 h-48 object-contain" /> : <div className="w-48 h-48 flex items-center justify-center text-black">LOADING...</div>}</div>
-                            <div className="text-center text-black"><div className="text-2xl mb-1">{players.length} 人</div><div className="text-xs">READY</div></div>
-                        </div>
-                        <div className="absolute bottom-10 right-10"><button onClick={() => onStartHost(roomId, players)} className="pixel-btn pixel-btn-yellow px-6 py-4 text-xs animate-bounce text-black pixel-btn-yellow">主持人入口 &gt;</button></div>
-                    </div>
-                </div>
-            );
-        };
-
-        // --- 2. Player App ---
-        const PlayerApp = ({ room }) => {
-            const [user, setUser] = useState(null);
-            const [nameInput, setNameInput] = useState("");
-            const [myAvatar, setMyAvatar] = useState(AVATARS[0]);
-            const [joined, setJoined] = useState(false);
-            const [gameStatus, setGameStatus] = useState({ status: 'lobby' }); 
-            const [playerIndex, setPlayerIndex] = useState(0);
-
-            const { status, emit } = useSocket(room, (evt, data) => {
-                if (evt === 'game_status_update') setGameStatus(data);
-                if (evt === 'game_reset') { localStorage.removeItem('lottery_user'); setUser(null); setJoined(false); alert("活動已重置"); }
-                if (evt === 'init_data' && data.players && user) {
-                    const idx = data.players.findIndex(p => p.id === user.id);
-                    if(idx !== -1) setPlayerIndex(idx+1);
-                }
-            });
-
-            useEffect(() => { try { const u = JSON.parse(localStorage.getItem('lottery_user')); if (u) { setUser(u); setJoined(true); } } catch(e){} }, []);
-            useEffect(() => { if (status === 'connected' && joined && user) emit('player_join', { user }); }, [status, joined]);
-            const handleJoin = () => { if(!nameInput.trim()) return; const newUser = { id: Date.now().toString(), name: nameInput.trim(), avatar: myAvatar }; setUser(newUser); setJoined(true); localStorage.setItem('lottery_user', JSON.stringify(newUser)); emit('player_join', { user: newUser }); };
-            
-            const isWinner = gameStatus.status === 'result' && gameStatus.winnerId === user?.id;
-
-            if(isWinner) return <div className="fixed inset-0 z-50 bg-yellow-500 flex flex-col items-center justify-center p-4 text-center"><div className="animate__animated animate__tada animate__infinite text-9xl mb-6">🏆</div><div className="pixel-box-dark p-6 mb-4"><h1 className="text-2xl text-yellow-400 mb-2">YOU WIN!</h1><p className="text-sm">恭喜中獎！</p></div><div className="pixel-box p-4 flex flex-col items-center"><div className="text-6xl mb-2">{user?.avatar}</div><div className="text-xl font-bold">No.{playerIndex}<br/>{user?.name}</div></div></div>;
-            if(!joined) return <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4"><div className="pixel-box p-6 w-full max-w-sm text-center"><h1 className="text-xl mb-6 text-blue-600">PLAYER JOIN</h1><div className="grid grid-cols-4 gap-2 mb-6">{AVATARS.slice(0, 8).map(a => <button key={a} onClick={() => setMyAvatar(a)} className={`text-2xl p-2 border-2 ${myAvatar === a ? 'border-blue-500 bg-blue-100' : 'border-transparent'}`}>{a}</button>)}</div><input type="text" className="w-full border-4 border-black p-3 font-mono text-center mb-6 text-black" placeholder="YOUR NAME" value={nameInput} onChange={e => setNameInput(e.target.value)} maxLength={8} /><button onClick={handleJoin} className="pixel-btn pixel-btn-yellow w-full py-4 text-lg">ENTER</button></div></div>;
-            return <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center text-white p-4"><div className="absolute top-2 right-2 text-[10px] text-green-400">{status}</div>{gameStatus.status === 'playing' ? <div className="text-center animate-pulse"><div className="text-6xl mb-4">🎲</div><div className="text-yellow-400 text-xl">ROLLING...</div></div> : <div className="text-center w-full max-w-sm"><div className="pixel-box-dark p-8 mb-6"><div className="text-6xl mb-4">{user.avatar}</div><div className="text-2xl text-yellow-400">No.{playerIndex}<br/><span className="text-sm text-white">{user.name}</span></div><div className="mt-4 text-xs text-green-400 border border-green-400 px-2 py-1 inline-block">READY</div></div></div>}</div>;
-        };
-
-        // --- 3. Host App ---
-        const HostApp = ({ room, initialPlayers }) => {
-            const [allPlayers, setAllPlayers] = useState(initialPlayers || []);
-            const [winners, setWinners] = useState([]);
-            const [isDrawing, setIsDrawing] = useState(false);
-            const [gameMode, setGameMode] = useState('slots'); 
-            const [targetCount, setTargetCount] = useState(1);
-            const [displayState, setDisplayState] = useState({ winner: null, rolling: false, text: "READY" });
-
-            const { emit } = useSocket(room, (evt, data) => {
-                if(evt === 'player_list_update') setAllPlayers(data);
-                if(evt === 'init_data' && data.players) setAllPlayers(data.players);
-                if(evt === 'game_reset') { setAllPlayers([]); setWinners([]); setIsDrawing(false); setDisplayState({winner:null, rolling:false, text:"READY"}); }
-            });
-
-            const MODES = [
-                { id: 'slots', name: '拉霸機' }, { id: 'race', name: '賽馬' }, { id: 'meteor', name: '流星雨' }, { id: 'archery', name: '后羿射日' },
-                { id: 'adventure', name: '瑪利歐' }, { id: 'shooter', name: '飛機射擊' }, { id: 'retro', name: '幸運轉盤' }, { id: 'magic', name: '塔羅翻牌' },
-                { id: 'radar', name: '雷達掃描' }, { id: 'soccer', name: '足球射門' }, { id: 'bomb', name: '炸彈倒數' }
-            ];
-            const [unusedModes, setUnusedModes] = useState([...MODES.map(m => m.id)]);
-
-            const availablePlayers = useMemo(() => {
-                const ids = new Set(winners.map(w => w.id));
-                return allPlayers.filter(p => !ids.has(p.id));
-            }, [allPlayers, winners]);
-
-            const resetGame = () => { if(confirm("RESET SYSTEM?")) emit('reset_game', {}); };
-
-            const startDraw = async () => {
-                if(availablePlayers.length < targetCount) { alert("人數不足"); return; }
-                
-                let pool = [...unusedModes];
-                if(pool.length === 0) pool = MODES.map(m=>m.id);
-                const rIdx = Math.floor(Math.random() * pool.length);
-                const mode = pool[rIdx];
-                pool.splice(rIdx, 1);
-                setUnusedModes(pool);
-                setGameMode(mode);
-
-                setIsDrawing(true);
-                emit('update_game_status', { status: { status: 'playing' } });
-
-                // 動畫時長設定
-                const duration = (mode === 'race' || mode === 'adventure' || mode === 'archery') ? 6000 : 4000;
-                
-                setDisplayState({ rolling: true, winner: null, text: "ROLLING" });
-
-                const shuffled = [...availablePlayers].sort(() => 0.5 - Math.random());
-                const roundWinners = shuffled.slice(0, targetCount);
-                setWinners(prev => [...prev, ...roundWinners]);
-
-                await processWinners(roundWinners, mode, duration);
-            };
-
-            const processWinners = async (winnersList, mode, duration) => {
-                for (let i = 0; i < winnersList.length; i++) {
-                    const w = winnersList[i];
-                    
-                    setDisplayState({ rolling: true, winner: null, text: "ROLLING" });
-                    
-                    await new Promise(r => setTimeout(r, duration)); 
-                    
-                    setDisplayState({ rolling: false, winner: w, text: `No.${allPlayers.findIndex(p => p.id === w.id)+1} - ${w.name}` });
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                    
-                    // 等待動畫揭曉
-                    await new Promise(r => setTimeout(r, 2000)); 
-                    
-                    // 彈窗與廣播 (觸發愛心與音效)
-                    AudioManager.playWin();
-                    AudioManager.speak(`恭喜 ${w.name} 中獎`);
-
-                    setDisplayState(prev => ({ ...prev, showModal: true }));
-                    emit('update_game_status', { status: { status: 'result', winnerName: w.name, winnerId: w.id } });
-
-                    // 等待手動關閉
-                    await new Promise(resolve => {
-                         const check = setInterval(() => {
-                             if (!document.getElementById('modal-open')) { // Hack: check modal removal
-                                 clearInterval(check);
-                                 resolve();
-                             }
-                         }, 500);
-                         // 這裡無法直接等待，所以我們設定一個 timeout 作為備案
-                         setTimeout(() => { clearInterval(check); resolve(); }, 15000); 
-                    });
-                    
-                    setDisplayState(prev => ({ ...prev, showModal: false }));
-                    await new Promise(r => setTimeout(r, 500));
-                }
-                setIsDrawing(false);
-            };
-
-            return (
-                <div className="h-screen bg-gray-900 flex flex-col relative overflow-hidden">
-                    <div className="retro-grid-mask"></div><div className="retro-grid-container"><div className="retro-grid"></div></div>
-
-                    {/* 得獎彈窗 (含關閉按鈕，點擊後會讓 Loop 繼續) */}
-                    {displayState.showModal && displayState.winner && (
-                        <div id="modal-open" className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 animate__animated animate__fadeIn">
-                            <FloatingHearts />
-                            <div className="text-center animate__animated animate__zoomInDown relative z-10">
-                                <div className="pixel-box-dark p-12 border-8 border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.5)]">
-                                    <div className="text-9xl mb-6 animate-bounce">{displayState.winner.avatar}</div>
-                                    <div className="text-5xl font-black text-white">No.{allPlayers.findIndex(p => p.id === displayState.winner.id)+1}</div>
-                                    <div className="text-2xl text-yellow-300 mt-2">{displayState.winner.name}</div>
-                                    <div className="mt-8 bg-red-600 text-white px-6 py-2 text-xl inline-block">WINNER</div>
-                                </div>
-                                <button className="mt-8 pixel-btn bg-white text-black px-6 py-3 font-bold text-xl" onClick={() => setDisplayState(prev => ({...prev, showModal: false}))}>關閉 / 下一位</button>
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="absolute top-0 left-0 w-full p-4 flex justify-between z-20">
-                        <div className="pixel-box px-4 py-2 bg-blue-600 text-white text-xs">P: {allPlayers.length} / Left: {availablePlayers.length}</div>
-                        <div className="pixel-box px-4 py-2 bg-red-600 text-white text-xs">MODE: {gameMode.toUpperCase()}</div>
-                    </div>
-
-                    <div className="flex-1 flex items-center justify-center p-8 z-10">
-                        <VisualComponent candidates={availablePlayers} targetName={displayState.text} isRolling={displayState.rolling} mode={gameMode} winnerObj={displayState.winner} />
-                    </div>
-
-                    <div className="h-24 bg-gray-800 border-t-4 border-black flex items-center justify-center gap-6 p-4 z-30">
-                        {!isDrawing && <div className="flex items-center gap-4 bg-black p-2 border-2 border-white"><span className="text-xs text-gray-400">COUNT</span><button className="text-yellow-400 font-bold" onClick={()=>setTargetCount(Math.max(1,targetCount-1))}>-</button><span className="text-xl w-8 text-center">{targetCount}</span><button className="text-yellow-400 font-bold" onClick={()=>setTargetCount(Math.min(10,targetCount+1))}>+</button></div>}
-                        <button onClick={startDraw} disabled={isDrawing || allPlayers.length === 0} className={`pixel-btn ${isDrawing ? 'bg-gray-600' : 'pixel-btn-yellow'} px-8 py-3 text-xl font-bold`}>{isDrawing ? 'ROLLING...' : 'START'}</button>
-                        {!isDrawing && <button onClick={resetGame} className="pixel-btn bg-gray-600 text-xs px-4 py-3">RESET</button>}
-                    </div>
-                </div>
-            );
-        };
-
-        const App = () => {
-            const [mode, setMode] = useState('index');
-            const [room, setRoom] = useState('');
-            useEffect(() => {
-                const p = new URLSearchParams(window.location.search);
-                const m = p.get('mode'); const r = p.get('room');
-                if (m === 'host' && r) { setMode('host'); setRoom(r); }
-                else if (m === 'player' && r) { setMode('player'); setRoom(r); }
-                else setMode('index');
-            }, []);
-            const handleStartHost = (rid, ps) => {
-                sessionStorage.setItem(`lottery_players_${rid}`, JSON.stringify(ps));
-                window.location.href = `?mode=host&room=${rid}`;
-            };
-            return (
-                <ErrorBoundary>
-                    {mode === 'index' && <IndexPage onStartHost={handleStartHost} initialPlayers={[]} />}
-                    {mode === 'host' && <HostApp room={room} initialPlayers={JSON.parse(sessionStorage.getItem(`lottery_players_${room}`) || '[]')} />}
-                    {mode === 'player' && <PlayerApp room={room} />}
-                </ErrorBoundary>
-            );
-        };
-
-        const root = createRoot(document.getElementById('root'));
-        root.render(<App />);
-        removeLoading();
+        function updateCounters(){ joinCountEl.textContent=users.length; gameJoinCountEl.textContent=users.length; }
+        function enterGame(){ 
+            loginPage.style.opacity='0'; 
+            setTimeout(() => {
+                loginPage.style.display='none'; 
+                gamePage.classList.add('active'); 
+                initAudio(); 
+                initGameVisuals(); 
+                if(isMusicOn) bgmAudio.play().catch(()=>{});
+            }, 800);
+        }
+        
+        let ac; function initAudio(){ if(!ac) ac=new (window.AudioContext||window.webkitAudioContext)(); }
+        function playTick(p){ 
+            if(!ac)return; const o=ac.createOscillator(),g=ac.createGain(); 
+            o.type='square'; o.frequency.value=p; g.gain.setValueAtTime(0.1,ac.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+0.05); 
+            o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime+0.06); 
+        }
+        function playWinSound(){ 
+            if(!ac)return; const n=ac.currentTime; 
+            [440, 554, 659, 880, 440, 554, 659, 880].forEach((f,i)=>{ 
+                const o=ac.createOscillator(),g=ac.createGain(); 
+                o.type='square'; o.frequency.value=f; g.gain.setValueAtTime(0.1,n+i*0.1); g.gain.exponentialRampToValueAtTime(0.01,n+i*0.1+0.1); 
+                o.connect(g); g.connect(ac.destination); o.start(n+i*0.1); o.stop(n+i*0.1+0.1); 
+            }); 
+        }
+        function speak(t){ window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='zh-TW'; window.speechSynthesis.speak(u); }
+        
+        const cf=document.getElementById('confetti-canvas'), cfx=cf.getContext('2d'); let ps=[];
+        function fireConfetti(){ 
+            cf.width=window.innerWidth; cf.height=window.innerHeight; ps=[]; 
+            for(let i=0;i<100;i++) ps.push({
+                x:cf.width/2, y:cf.height/2, vx:(Math.random()-0.5)*30, vy:(Math.random()-0.5)*30-10, 
+                size: Math.random()*10+5, c:`hsl(${Math.random()*360},100%,50%)`
+            }); 
+            upCf(); 
+        }
+        function upCf(){ 
+            cfx.clearRect(0,0,cf.width,cf.height); 
+            ps.forEach((p,i)=>{ 
+                p.x+=p.vx; p.y+=p.vy; p.vy+=0.5; 
+                if(p.y > cf.height) ps.splice(i,1);
+                cfx.fillStyle=p.c; cfx.fillRect(p.x,p.y,p.size,p.size); 
+            }); 
+            if(ps.length) requestAnimationFrame(upCf); 
+        }
     </script>
 </body>
 </html>
