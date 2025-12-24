@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NES TV DRAW</title>
+    <title>BRIGHT ARCADE DRAW</title>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --nes-blue: #5C94FC;
-            --nes-ground: #C84C0C;
-            --text-white: #FFFFFF;
+            --sky-blue: #5C94FC;
+            --cloud-white: #FFFFFF;
+            --ground-orange: #C84C0C;
+            --brick-brown: #804000;
             --text-gold: #FFD700;
-            --tv-gray: #2b2b2b;
-            --tv-dark: #1a1a1a;
+            --nes-black: #000000;
         }
 
         body {
             font-family: 'Press Start 2P', 'Noto Sans TC', monospace;
-            background-color: var(--nes-blue);
-            color: var(--text-white);
+            background-color: var(--sky-blue); /* 明亮藍天背景 */
+            color: var(--nes-black);
             margin: 0;
             height: 100vh;
             overflow: hidden;
@@ -32,7 +32,7 @@
             user-select: none;
         }
 
-        /* --- 背景 (Super Mario Style) --- */
+        /* --- 1. 明亮遊戲背景 (Super Mario Style) --- */
         .game-world {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 0; overflow: hidden;
@@ -40,18 +40,27 @@
         
         .pixel-cloud {
             position: absolute; background: #fff; width: 60px; height: 20px;
-            box-shadow: 20px 0 #fff, 10px -20px #fff;
-            opacity: 0.8; animation: drift linear infinite;
+            box-shadow: 20px 0 #fff, 10px -20px #fff, 40px 0 #fff;
+            opacity: 0.9; animation: drift linear infinite;
         }
-        @keyframes drift { from { left: -100px; } to { left: 110%; } }
+        @keyframes drift { from { left: -150px; } to { left: 110%; } }
 
         .ground-layer {
-            position: absolute; bottom: 0; width: 100%; height: 60px;
-            background: 
-                repeating-linear-gradient(90deg, #000 0, #000 2px, transparent 2px, transparent 40px),
-                repeating-linear-gradient(0deg, #000 0, #000 2px, #C84C0C 2px, #C84C0C 40px);
-            background-color: #C84C0C;
+            position: absolute; bottom: 0; width: 100%; height: 80px;
+            background-color: var(--ground-orange);
+            background-image: 
+                linear-gradient(335deg, rgba(0,0,0,0.1) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(0,0,0,0.1) 23px, transparent 23px);
+            background-size: 58px 58px;
             border-top: 4px solid #000;
+        }
+
+        .hills {
+            position: absolute; bottom: 80px; left: 0; width: 100%; height: 200px;
+            background: 
+                radial-gradient(circle at 50% 100%, #00A800 20%, transparent 21%),
+                radial-gradient(circle at 10% 100%, #008800 15%, transparent 16%);
+            background-size: 300px 200px;
         }
 
         /* --- UI 通用 --- */
@@ -60,32 +69,36 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* --- 1. 登入頁 --- */
+        /* --- 2. 登入頁 --- */
         #login-page { padding-top: 40px; transition: opacity 0.5s; justify-content: flex-start; }
 
         .header-panel {
-            background: rgba(0,0,0,0.8);
-            border: 4px solid #fff;
+            background: #fff;
+            border: 4px solid #000;
             padding: 20px 40px;
             display: flex; gap: 30px; align-items: center;
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.5);
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
             margin-bottom: 30px;
+            border-radius: 10px;
         }
 
-        .qr-frame { background: #fff; padding: 5px; border: 4px solid #000; }
-        #qr-img { width: 120px; height: 120px; display: block; image-rendering: pixelated; }
+        .qr-frame { background: #000; padding: 5px; }
+        #qr-img { width: 120px; height: 120px; display: block; background: #fff; }
 
         .info-block { text-align: left; }
-        .scan-text { color: #ffffff; font-size: 1.2rem; margin-bottom: 10px; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.3; } }
+        .scan-text { 
+            color: #000; font-size: 1.5rem; margin-bottom: 10px; 
+            animation: bounce 1s infinite alternate; 
+        }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-5px); } }
 
-        .player-count-label { color: var(--text-gold); font-size: 0.8rem; margin-top: 10px; }
-        .player-count-num { font-size: 1.5rem; color: #fff; text-shadow: 2px 2px #000; }
+        .player-count-label { color: #555; font-size: 0.8rem; margin-top: 10px; }
+        .player-count-num { font-size: 1.5rem; color: #E60012; text-shadow: 2px 2px 0 #000; }
 
         .btn-start {
             margin-top: 15px; padding: 10px 20px; font-family: inherit; font-size: 1rem;
-            background: #E60012; color: #fff; border: 4px solid #fff; cursor: pointer;
-            box-shadow: 4px 4px 0 #000;
+            background: #00AA00; color: #fff; border: 4px solid #000; cursor: pointer;
+            box-shadow: 4px 4px 0 #000; transition: transform 0.1s;
         }
         .btn-start:active { transform: translate(4px, 4px); box-shadow: none; }
 
@@ -93,125 +106,100 @@
         .player-grid {
             width: 90%; max-width: 1200px; flex: 1; 
             display: flex; flex-wrap: wrap; align-content: flex-start; gap: 15px;
-            overflow-y: auto; padding: 10px; margin-bottom: 70px;
+            overflow-y: auto; padding: 10px; margin-bottom: 90px;
         }
         
         .char-box {
-            width: 100px; height: 100px;
-            background: #000; border: 4px solid #fff;
+            width: 90px; height: 90px;
+            background: #fff; border: 4px solid #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
             animation: spawn 0.3s forwards; transform: scale(0);
         }
         @keyframes spawn { to { transform: scale(1); } }
         
-        .char-icon { font-size: 2.5rem; margin-bottom: 5px; animation: jump 1s infinite; }
-        @keyframes jump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        .char-name { font-size: 0.6rem; color: #fff; text-align: center; word-break: break-all; font-family: 'Noto Sans TC'; }
+        .char-icon { font-size: 2.5rem; margin-bottom: 5px; }
+        .char-name { font-size: 0.6rem; color: #000; text-align: center; word-break: break-all; font-family: 'Noto Sans TC'; }
 
-        /* --- 2. 抽獎主畫面 (電視機) --- */
+        /* --- 3. 抽獎主畫面 (電視機) --- */
         #game-page { display: none; opacity: 0; justify-content: center; }
         #game-page.active { display: flex; opacity: 1; }
 
         .machine-container { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
         
-        /* ★★★ 復古電視機外框 ★★★ */
+        /* 復古電視機外框 (深灰色) */
         .tv-frame {
             width: 85%; max-width: 900px; height: 500px;
-            background-color: var(--tv-gray);
+            background-color: #333;
             border-radius: 30px;
             padding: 30px;
             box-shadow: 
-                inset 0 0 20px rgba(0,0,0,0.8), /* 內部陰影 */
-                10px 10px 0 rgba(0,0,0,0.5), /* 外部硬陰影 */
-                inset 2px 2px 5px rgba(255,255,255,0.2); /* 亮邊 */
+                inset 0 0 20px rgba(0,0,0,0.8),
+                10px 10px 0 rgba(0,0,0,0.3);
             position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 電視品牌標籤 */
-        .tv-brand {
-            position: absolute; bottom: 15px; right: 40px;
-            font-size: 0.8rem; color: #888; font-style: italic; letter-spacing: 2px;
-        }
-
-        /* 裝飾線條/喇叭孔 */
-        .tv-speaker {
-            position: absolute; bottom: 20px; left: 40px;
-            width: 100px; height: 10px;
-            background: repeating-linear-gradient(90deg, #111 0, #111 2px, transparent 2px, transparent 6px);
-        }
-
-        /* 螢幕區域 */
-        .screen-area {
-            width: 100%; height: 100%;
-            background-color: #000;
-            border-radius: 50% 50% 50% 50% / 5% 5% 5% 5%; /* 模擬映像管圓弧 */
-            position: relative;
-            overflow: hidden;
+            display: flex; flex-direction: column; align-items: center;
             border: 4px solid #111;
-            box-shadow: inset 0 0 20px #000;
         }
 
-        /* 螢幕掃描線 & 反光 */
+        .screen-area {
+            width: 100%; height: 100%; background: #000;
+            border-radius: 60px / 20px; /* 映像管圓角 */
+            position: relative; overflow: hidden;
+            border: 4px solid #111;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        }
+        
+        /* 掃描線 */
         .screen-area::after {
             content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
-            background: 
-                linear-gradient(rgba(255,255,255,0.05) 50%, transparent 50%),
-                linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.01), rgba(0,0,255,0.03));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none; z-index: 20;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px; pointer-events: none; z-index: 99;
         }
 
-        /* 內容層 */
-        #game-canvas { position: absolute; top:0; left:0; width: 100%; height: 100%; z-index: 5; image-rendering: pixelated; }
+        #game-canvas { width: 100%; height: 100%; image-rendering: pixelated; position: absolute; top:0; left:0; z-index: 5;}
         
-        #tv-lottie-player {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; display: none; background: #000;
-        }
+        /* Lottie 層 */
+        #tv-lottie-player { width: 100%; height: 100%; position: absolute; top:0; left:0; display: none; background: #000; z-index: 10;}
 
         /* 控制台 */
         .control-bar {
             width: 100%; background: #222; padding: 20px;
             display: flex; justify-content: center; gap: 20px; align-items: center;
-            border-top: 4px solid #fff; z-index: 20; flex-wrap: wrap;
+            border-top: 4px solid #fff; z-index: 20; flex-wrap: wrap; box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
         }
         
-        .nes-input-group { display: flex; align-items: center; gap: 10px; color: var(--text-gold); font-size: 0.8rem; }
+        .nes-input-group { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 0.8rem; }
         .nes-input { background: #000; border: 2px solid #fff; color: #fff; font-family: inherit; font-size: 1rem; width: 60px; text-align: center; outline: none; }
         .credits-text { width: 100%; text-align: center; color: var(--text-gold); margin-top: 10px; font-size: 0.8rem; text-shadow: 2px 2px 0 #000; }
 
-        /* --- 3. 中獎彈窗 --- */
+        /* --- 4. 中獎彈窗 (移至下方，不擋電視) --- */
         #winner-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 100;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.5); z-index: 100;
+            display: none; flex-direction: column; align-items: center; justify-content: flex-end;
+            padding-bottom: 50px;
         }
         #winner-modal.active { display: flex; }
 
         .winner-panel {
-            background: #000; border: 8px solid var(--text-gold);
-            padding: 40px; text-align: center; position: relative;
-            box-shadow: 0 0 0 100vh rgba(0,0,0,0.5);
-            animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: #fff; border: 4px solid #000;
+            padding: 30px 60px; text-align: center; position: relative;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.5);
+            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 20px; min-width: 300px;
         }
-        @keyframes zoomIn { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        .winner-header { color: var(--text-gold); font-size: 2rem; margin-bottom: 20px; animation: flash 0.2s infinite; }
-        @keyframes flash { 50% { opacity: 0.5; } }
-
-        .winner-name { font-size: 4rem; color: #fff; margin: 20px 0; text-shadow: 4px 4px #E60012; }
+        .winner-header { color: #E60012; font-size: 1.5rem; margin-bottom: 10px; }
+        .winner-name { font-size: 3rem; color: #000; margin: 10px 0 20px 0; text-shadow: 2px 2px 0 #ccc; }
 
         /* --- 管理彈窗 --- */
-        #manage-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; align-items: center; justify-content: center; }
+        #manage-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; display: none; align-items: center; justify-content: center; }
         #manage-modal.active { display: flex; }
-        .manage-box { width: 80%; max-width: 600px; height: 70vh; background: #000; border: 4px solid #fff; display: flex; flex-direction: column; padding: 20px; color: #fff; }
-        .manage-list { flex: 1; overflow-y: auto; border: 2px solid #333; margin: 15px 0; font-family: 'Noto Sans TC'; }
-        .manage-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px dashed #555; }
-        .excluded { text-decoration: line-through; color: #666; }
+        .manage-box { width: 80%; max-width: 600px; height: 70vh; background: #fff; border: 4px solid #000; display: flex; flex-direction: column; padding: 20px; color: #000; box-shadow: 8px 8px 0 rgba(0,0,0,0.5); }
+        .manage-list { flex: 1; overflow-y: auto; border: 2px solid #000; margin: 15px 0; font-family: 'Noto Sans TC'; }
+        .manage-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px dashed #ccc; align-items: center; }
+        .excluded { text-decoration: line-through; color: #999; }
 
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1500; }
     </style>
@@ -219,8 +207,9 @@
 <body>
 
     <div class="game-world">
-        <div class="pixel-cloud" style="top: 10%; animation-duration: 20s;"></div>
-        <div class="pixel-cloud" style="top: 30%; animation-duration: 35s; transform: scale(1.5);"></div>
+        <div class="pixel-cloud" style="top: 10%; animation-duration: 25s;"></div>
+        <div class="pixel-cloud" style="top: 30%; animation-duration: 40s; transform: scale(1.5);"></div>
+        <div class="hills"></div>
         <div class="ground-layer"></div>
     </div>
 
@@ -243,25 +232,20 @@
     <!-- 2. 遊戲主畫面 -->
     <div id="game-page">
         <div class="machine-container">
-            <!-- ★★★ 電視機結構 ★★★ -->
             <div class="tv-frame">
                 <div class="screen-area">
-                    <!-- 1. 像素文字 Canvas (待機用) -->
+                    <!-- Canvas 用於顯示待機文字 (INSERT COIN) -->
                     <canvas id="game-canvas"></canvas>
                     
-                    <!-- 2. Lottie 動畫層 (抽獎/中獎用) -->
+                    <!-- Lottie 用於播放動畫 (抽獎時隨機顯示) -->
                     <lottie-player id="tv-lottie-player"
                         background="#000" speed="1" loop autoplay>
                     </lottie-player>
                 </div>
-                
-                <div class="tv-brand">NES-TV 1985</div>
-                <div class="tv-speaker"></div>
             </div>
         </div>
-
         <div class="control-bar">
-            <button class="btn-start" id="draw-btn" onclick="startMultiDraw()">SPIN</button>
+            <button class="btn-start" style="background:#E60012;" id="draw-btn" onclick="startMultiDraw()">SPIN</button>
             <div class="nes-input-group">
                 <label>COUNT:</label>
                 <input type="number" class="nes-input" id="draw-count" value="1" min="1" max="50">
@@ -273,10 +257,10 @@
         </div>
     </div>
 
-    <!-- 3. 中獎彈窗 -->
+    <!-- 3. 中獎彈窗 (純文字+音效，無動畫) -->
     <div id="winner-modal" onclick="closeWinnerModal()">
         <div class="winner-panel" onclick="event.stopPropagation()">
-            <div class="winner-header">★ WINNER! ★</div>
+            <div class="winner-header">★ CONGRATULATIONS ★</div>
             <div class="winner-name" id="modal-winner-name">NAME</div>
             <button class="btn-start" style="background:#0000AA;" onclick="closeWinnerModal()">CONTINUE</button>
         </div>
@@ -285,7 +269,7 @@
     <!-- 管理彈窗 -->
     <div id="manage-modal" onclick="closeManageModal()">
         <div class="manage-box" onclick="event.stopPropagation()">
-            <div style="color:var(--text-gold); text-align:center;">PLAYER LIST</div>
+            <div style="color:#000; text-align:center;">PLAYER LIST</div>
             <div class="manage-list" id="manage-list"></div>
             <div style="text-align:right;">
                 <button class="btn-start" onclick="closeManageModal()">OK</button>
@@ -309,9 +293,9 @@
         bgmAudio.loop = true; bgmAudio.volume = 0.3;
         let isMusicOn = true;
 
-        // ★★★ Lottie 資源定義 ★★★
-        const rollingAnimFile = "Emos Spin.json"; // 轉盤動畫
-        const winnerAnimations = [
+        // ★★★ 所有動畫清單 (抽獎時隨機挑選播放) ★★★
+        const animationPool = [
+            "Emos Spin.json",
             "Monitor screen with video game level up.json",
             "Cat fishing on moon.json",
             "Generator.json",
@@ -333,15 +317,14 @@
         const winnerNameEl = document.getElementById('modal-winner-name');
         const drawBtn = document.getElementById('draw-btn');
         
-        // TV Elements
         const gameCanvas = document.getElementById('game-canvas');
         const tvLottie = document.getElementById('tv-lottie-player');
 
-        // QR Code Setup
+        // QR Code
         const mobileUrl = window.location.origin + "/mobile.html";
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(mobileUrl)}`;
 
-        // Socket Events
+        // Socket
         socket.on('connect', () => socket.emit('admin_init'));
         socket.on('update_user_list', (u) => { 
             users = u; updateUI(); 
@@ -393,7 +376,7 @@
                 await new Promise(resolve => {
                     socket.emit('admin_start_rolling');
                     startRolling();
-                    setTimeout(() => { socket.emit('admin_perform_draw'); resolve(); }, 3500);
+                    setTimeout(() => { socket.emit('admin_perform_draw'); resolve(); }, 3000);
                 });
                 await new Promise(r => drawResolver = r);
                 await new Promise(r => setTimeout(r, 500));
@@ -405,7 +388,7 @@
         function resetBtn() { 
             isDrawing = false; drawBtn.disabled = false; drawBtn.innerText = "SPIN"; 
             animState = 'idle';
-            // 恢復待機畫面
+            // 回復待機畫面
             gameCanvas.style.display = 'block';
             tvLottie.style.display = 'none';
             tvLottie.stop();
@@ -414,17 +397,19 @@
 
         function startRolling() {
             animState = 'rolling';
-            // 切換畫面：隱藏 Canvas，顯示 Lottie 轉盤
+            // 切換為電視動畫模式
             gameCanvas.style.display = 'none';
             tvLottie.style.display = 'block';
-            tvLottie.load(rollingAnimFile);
+            
+            // ★★★ 隨機選擇一個動畫播放 ★★★
+            const randomAnim = animationPool[Math.floor(Math.random() * animationPool.length)];
+            tvLottie.load(randomAnim);
             tvLottie.play();
 
-            // 聲音加速
             const s = Date.now();
             const tick = () => {
                 if(animState!=='rolling') return;
-                const p = (Date.now()-s)/3500;
+                const p = (Date.now()-s)/3000;
                 if(p<1) { playTick(100+p*400); setTimeout(tick, Math.max(40, 100*(1-p))); }
             }; tick();
         }
@@ -433,10 +418,10 @@
             animState = 'idle';
             winnerNameEl.innerText = name;
             
-            // ★★★ 電視畫面切換為隨機動畫 ★★★
-            const randomAnim = winnerAnimations[Math.floor(Math.random() * winnerAnimations.length)];
-            tvLottie.load(randomAnim);
-            tvLottie.play(); // 繼續在電視裡播放慶祝動畫
+            // ★★★ 中獎後：停止動畫，電視變黑或保持最後一幀 (這裡我們讓它停止) ★★★
+            tvLottie.pause();
+            // 或者您可以選擇讓它繼續播，直到點擊繼續
+            // tvLottie.play(); 
 
             // 顯示彈窗
             winnerModal.classList.add('active');
@@ -450,17 +435,14 @@
             if(drawResolver) { drawResolver(); drawResolver = null; } else { resetBtn(); }
         }
 
-        // Canvas (Pixel Art Style - Idle Screen)
+        // Canvas (待機畫面：滾動名單)
         const cvs = document.getElementById('game-canvas');
         const ctx = cvs.getContext('2d');
         function initCanvas() { resize(); window.addEventListener('resize', resize); loop(); }
         function resize() { cvs.width = cvs.parentElement.offsetWidth; cvs.height = cvs.parentElement.offsetHeight; }
         
         function loop() {
-            if (animState !== 'idle') {
-                requestAnimationFrame(loop);
-                return;
-            }
+            if (animState !== 'idle') { requestAnimationFrame(loop); return; }
             
             ctx.clearRect(0,0,cvs.width,cvs.height);
             const cx = cvs.width/2; const cy = cvs.height/2;
@@ -470,7 +452,6 @@
             ctx.font = '30px "Press Start 2P"';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 
-            // 待機時顯示滾動名字
             const t = Date.now()*0.002;
             for(let i=0; i<3; i++) {
                 const idx = (Math.floor(t)+i) % list.length;
@@ -481,7 +462,6 @@
             requestAnimationFrame(loop);
         }
 
-        // Utils & Audio
         function toggleMusic() {
             isMusicOn = !isMusicOn;
             document.getElementById('music-btn').innerText = isMusicOn ? "MUSIC: ON" : "MUSIC: OFF";
@@ -505,7 +485,6 @@
         }
         function speak(t) { window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='zh-TW'; window.speechSynthesis.speak(u); }
 
-        // Manage Modal
         window.openManageModal = () => { document.getElementById('manage-modal').style.display = 'flex'; renderManageList(); }
         window.closeManageModal = () => { document.getElementById('manage-modal').style.display = 'none'; }
         function renderManageList() {
@@ -514,7 +493,7 @@
                 const isEx = localExcluded.has(u); const isWon = winners.includes(u);
                 const row = document.createElement('div'); row.className = 'manage-row';
                 let action = `<button class="btn-start" style="padding:5px; font-size:0.6rem;" onclick="toggleEx('${u}')">${isEx?'RESTORE':'KICK'}</button>`;
-                if(isWon) action = `<span style="color:gold">WINNER</span>`;
+                if(isWon) action = `<span style="color:#E60012">WINNER</span>`;
                 row.innerHTML = `<span class="${isEx?'excluded':''}">${u}</span>${action}`;
                 div.appendChild(row);
             });
