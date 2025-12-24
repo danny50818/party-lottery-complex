@@ -13,14 +13,13 @@
             --sky-blue: #5C94FC;
             --cloud-white: #FFFFFF;
             --ground-orange: #C84C0C;
-            --brick-brown: #804000;
             --text-gold: #FFD700;
             --nes-black: #000000;
         }
 
         body {
             font-family: 'Press Start 2P', 'Noto Sans TC', monospace;
-            background-color: var(--sky-blue); /* 明亮藍天背景 */
+            background-color: var(--sky-blue);
             color: var(--nes-black);
             margin: 0;
             height: 100vh;
@@ -32,7 +31,7 @@
             user-select: none;
         }
 
-        /* --- 1. 明亮遊戲背景 (Super Mario Style) --- */
+        /* --- 背景 (Super Mario Style) --- */
         .game-world {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 0; overflow: hidden;
@@ -45,6 +44,14 @@
         }
         @keyframes drift { from { left: -150px; } to { left: 110%; } }
 
+        .hills {
+            position: absolute; bottom: 80px; left: 0; width: 100%; height: 200px;
+            background: 
+                radial-gradient(circle at 50% 100%, #00A800 20%, transparent 21%),
+                radial-gradient(circle at 10% 100%, #008800 15%, transparent 16%);
+            background-size: 300px 200px;
+        }
+
         .ground-layer {
             position: absolute; bottom: 0; width: 100%; height: 80px;
             background-color: var(--ground-orange);
@@ -55,21 +62,13 @@
             border-top: 4px solid #000;
         }
 
-        .hills {
-            position: absolute; bottom: 80px; left: 0; width: 100%; height: 200px;
-            background: 
-                radial-gradient(circle at 50% 100%, #00A800 20%, transparent 21%),
-                radial-gradient(circle at 10% 100%, #008800 15%, transparent 16%);
-            background-size: 300px 200px;
-        }
-
         /* --- UI 通用 --- */
         #login-page, #game-page {
             position: relative; z-index: 10; width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* --- 2. 登入頁 --- */
+        /* --- 1. 登入頁 --- */
         #login-page { padding-top: 40px; transition: opacity 0.5s; justify-content: flex-start; }
 
         .header-panel {
@@ -121,21 +120,19 @@
         .char-icon { font-size: 2.5rem; margin-bottom: 5px; }
         .char-name { font-size: 0.6rem; color: #000; text-align: center; word-break: break-all; font-family: 'Noto Sans TC'; }
 
-        /* --- 3. 抽獎主畫面 (電視機) --- */
+        /* --- 2. 抽獎主畫面 (電視機) --- */
         #game-page { display: none; opacity: 0; justify-content: center; }
         #game-page.active { display: flex; opacity: 1; }
 
         .machine-container { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
         
-        /* 復古電視機外框 (深灰色) */
+        /* 復古電視機外框 */
         .tv-frame {
             width: 85%; max-width: 900px; height: 500px;
             background-color: #333;
             border-radius: 30px;
             padding: 30px;
-            box-shadow: 
-                inset 0 0 20px rgba(0,0,0,0.8),
-                10px 10px 0 rgba(0,0,0,0.3);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 10px 10px 0 rgba(0,0,0,0.3);
             position: relative;
             display: flex; flex-direction: column; align-items: center;
             border: 4px solid #111;
@@ -143,23 +140,30 @@
 
         .screen-area {
             width: 100%; height: 100%; background: #000;
-            border-radius: 60px / 20px; /* 映像管圓角 */
+            border-radius: 60px / 20px;
             position: relative; overflow: hidden;
             border: 4px solid #111;
             box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            display: flex; justify-content: center; align-items: center;
         }
         
-        /* 掃描線 */
         .screen-area::after {
             content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
             background-size: 100% 4px; pointer-events: none; z-index: 99;
         }
 
+        /* 內容層 */
         #game-canvas { width: 100%; height: 100%; image-rendering: pixelated; position: absolute; top:0; left:0; z-index: 5;}
         
-        /* Lottie 層 */
         #tv-lottie-player { width: 100%; height: 100%; position: absolute; top:0; left:0; display: none; background: #000; z-index: 10;}
+
+        /* Loading 文字 */
+        #loading-text {
+            position: absolute; z-index: 8; color: #00ff00; font-size: 2rem;
+            display: none; animation: blink 0.5s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
 
         /* 控制台 */
         .control-bar {
@@ -172,10 +176,10 @@
         .nes-input { background: #000; border: 2px solid #fff; color: #fff; font-family: inherit; font-size: 1rem; width: 60px; text-align: center; outline: none; }
         .credits-text { width: 100%; text-align: center; color: var(--text-gold); margin-top: 10px; font-size: 0.8rem; text-shadow: 2px 2px 0 #000; }
 
-        /* --- 4. 中獎彈窗 (移至下方，不擋電視) --- */
+        /* --- 3. 中獎彈窗 (簡化版：無動畫，只顯示結果) --- */
         #winner-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 100;
+            background: rgba(0,0,0,0.6); z-index: 100;
             display: none; flex-direction: column; align-items: center; justify-content: flex-end;
             padding-bottom: 50px;
         }
@@ -183,15 +187,16 @@
 
         .winner-panel {
             background: #fff; border: 4px solid #000;
-            padding: 30px 60px; text-align: center; position: relative;
+            padding: 40px 80px; text-align: center; position: relative;
             box-shadow: 8px 8px 0 rgba(0,0,0,0.5);
-            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin-bottom: 20px; min-width: 300px;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        .winner-header { color: #E60012; font-size: 1.5rem; margin-bottom: 10px; }
-        .winner-name { font-size: 3rem; color: #000; margin: 10px 0 20px 0; text-shadow: 2px 2px 0 #ccc; }
+        .winner-header { color: #E60012; font-size: 1.5rem; margin-bottom: 20px; }
+        .winner-trophy { font-size: 4rem; margin-bottom: 10px; display: block; }
+        .winner-name { font-size: 3.5rem; color: #000; margin: 10px 0 30px 0; text-shadow: 2px 2px 0 #ccc; }
 
         /* --- 管理彈窗 --- */
         #manage-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; display: none; align-items: center; justify-content: center; }
@@ -234,13 +239,14 @@
         <div class="machine-container">
             <div class="tv-frame">
                 <div class="screen-area">
-                    <!-- Canvas 用於顯示待機文字 (INSERT COIN) -->
+                    <!-- 待機畫面 (文字) -->
                     <canvas id="game-canvas"></canvas>
                     
-                    <!-- Lottie 用於播放動畫 (抽獎時隨機顯示) -->
-                    <lottie-player id="tv-lottie-player"
-                        background="#000" speed="1" loop autoplay>
-                    </lottie-player>
+                    <!-- 抽獎動畫 (Lottie) -->
+                    <lottie-player id="tv-lottie-player" background="#000" speed="1" loop autoplay></lottie-player>
+                    
+                    <!-- 讀取中文字 -->
+                    <div id="loading-text">LOADING...</div>
                 </div>
             </div>
         </div>
@@ -257,10 +263,11 @@
         </div>
     </div>
 
-    <!-- 3. 中獎彈窗 (純文字+音效，無動畫) -->
+    <!-- 3. 中獎彈窗 (簡化版) -->
     <div id="winner-modal" onclick="closeWinnerModal()">
         <div class="winner-panel" onclick="event.stopPropagation()">
-            <div class="winner-header">★ CONGRATULATIONS ★</div>
+            <div class="winner-header">★ WINNER! ★</div>
+            <div class="winner-trophy">🏆</div>
             <div class="winner-name" id="modal-winner-name">NAME</div>
             <button class="btn-start" style="background:#0000AA;" onclick="closeWinnerModal()">CONTINUE</button>
         </div>
@@ -293,7 +300,7 @@
         bgmAudio.loop = true; bgmAudio.volume = 0.3;
         let isMusicOn = true;
 
-        // ★★★ 所有動畫清單 (抽獎時隨機挑選播放) ★★★
+        // ★★★ 隨機動畫庫 (8個檔案) ★★★
         const animationPool = [
             "Emos Spin.json",
             "Monitor screen with video game level up.json",
@@ -307,7 +314,7 @@
         
         const retroIcons = ["👾", "🚀", "🍄", "⭐", "🦖", "👻", "💎", "💣", "🎮", "📀", "🔋", "⚔️"];
 
-        // DOM Elements
+        // DOM
         const loginPage = document.getElementById('login-page');
         const gamePage = document.getElementById('game-page');
         const joinCountEl = document.getElementById('join-count');
@@ -319,8 +326,8 @@
         
         const gameCanvas = document.getElementById('game-canvas');
         const tvLottie = document.getElementById('tv-lottie-player');
+        const loadingText = document.getElementById('loading-text');
 
-        // QR Code
         const mobileUrl = window.location.origin + "/mobile.html";
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(mobileUrl)}`;
 
@@ -375,8 +382,12 @@
                 drawBtn.innerText = `DRAW ${i+1}/${count}`;
                 await new Promise(resolve => {
                     socket.emit('admin_start_rolling');
+                    
+                    // ★★★ 開始滾動：隨機挑選動畫並播放 ★★★
                     startRolling();
-                    setTimeout(() => { socket.emit('admin_perform_draw'); resolve(); }, 3000);
+                    
+                    // ★★★ 延長等待時間至 5 秒，確保動畫播放 ★★★
+                    setTimeout(() => { socket.emit('admin_perform_draw'); resolve(); }, 5000);
                 });
                 await new Promise(r => drawResolver = r);
                 await new Promise(r => setTimeout(r, 500));
@@ -388,28 +399,39 @@
         function resetBtn() { 
             isDrawing = false; drawBtn.disabled = false; drawBtn.innerText = "SPIN"; 
             animState = 'idle';
-            // 回復待機畫面
-            gameCanvas.style.display = 'block';
-            tvLottie.style.display = 'none';
+            
+            gameCanvas.style.display = 'block'; // 顯示文字
+            tvLottie.style.display = 'none';    // 隱藏動畫
             tvLottie.stop();
+            loadingText.style.display = 'none'; // 隱藏 Loading
+            
             if(isMusicOn) bgmAudio.play().catch(()=>{});
         }
 
         function startRolling() {
             animState = 'rolling';
-            // 切換為電視動畫模式
-            gameCanvas.style.display = 'none';
-            tvLottie.style.display = 'block';
             
-            // ★★★ 隨機選擇一個動畫播放 ★★★
-            const randomAnim = animationPool[Math.floor(Math.random() * animationPool.length)];
-            tvLottie.load(randomAnim);
-            tvLottie.play();
+            // 1. UI 切換：顯示 Loading，隱藏 Canvas
+            gameCanvas.style.display = 'none';
+            tvLottie.style.display = 'none'; 
+            loadingText.style.display = 'block';
 
+            // 2. 隨機選擇動畫
+            const randomAnim = animationPool[Math.floor(Math.random() * animationPool.length)];
+            
+            // 3. 載入並播放 (給一點時間載入)
+            setTimeout(() => {
+                loadingText.style.display = 'none'; // 載入後隱藏文字
+                tvLottie.style.display = 'block';   // 顯示播放器
+                tvLottie.load(randomAnim);
+                tvLottie.play();
+            }, 500); // 0.5秒讀取時間
+
+            // 4. 聲音效果
             const s = Date.now();
             const tick = () => {
                 if(animState!=='rolling') return;
-                const p = (Date.now()-s)/3000;
+                const p = (Date.now()-s)/5000;
                 if(p<1) { playTick(100+p*400); setTimeout(tick, Math.max(40, 100*(1-p))); }
             }; tick();
         }
@@ -418,11 +440,9 @@
             animState = 'idle';
             winnerNameEl.innerText = name;
             
-            // ★★★ 中獎後：停止動畫，電視變黑或保持最後一幀 (這裡我們讓它停止) ★★★
+            // ★★★ 停止電視動畫，顯示黑屏或最後一幀 ★★★
             tvLottie.pause();
-            // 或者您可以選擇讓它繼續播，直到點擊繼續
-            // tvLottie.play(); 
-
+            
             // 顯示彈窗
             winnerModal.classList.add('active');
             
@@ -435,7 +455,7 @@
             if(drawResolver) { drawResolver(); drawResolver = null; } else { resetBtn(); }
         }
 
-        // Canvas (待機畫面：滾動名單)
+        // Canvas (待機畫面：INSERT COIN)
         const cvs = document.getElementById('game-canvas');
         const ctx = cvs.getContext('2d');
         function initCanvas() { resize(); window.addEventListener('resize', resize); loop(); }
