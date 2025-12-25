@@ -31,7 +31,7 @@
             user-select: none;
         }
 
-        /* --- 除錯控制面板 (升級版) --- */
+        /* --- 除錯控制面板 --- */
         #debug-panel {
             position: absolute;
             top: 10px;
@@ -182,6 +182,7 @@
             border: 4px solid #111;
             box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
             display: flex; justify-content: center; align-items: center;
+            transition: background-color 0.5s; /* 背景色切換動畫 */
         }
         
         .screen-area::after {
@@ -197,8 +198,9 @@
         #tv-lottie-player { 
             width: 100%; height: 100%; 
             position: absolute; top:0; left:0; 
-            background: #000; z-index: 10;
-            display: none; /* 預設不顯示 */
+            /* background 屬性會由 JS 動態控制 */
+            z-index: 10;
+            display: none; 
         }
 
         /* 讀取畫面 (填補黑屏) */
@@ -299,7 +301,7 @@
                     <canvas id="game-canvas"></canvas>
                     
                     <!-- 抽獎動畫 -->
-                    <lottie-player id="tv-lottie-player" background="#000" speed="1" loop autoplay></lottie-player>
+                    <lottie-player id="tv-lottie-player" speed="1" loop autoplay></lottie-player>
                     
                     <!-- 讀取畫面 -->
                     <div id="tv-loading">
@@ -359,7 +361,7 @@
         bgmAudio.loop = true; bgmAudio.volume = 0.3;
         let isMusicOn = true;
 
-        // ★★★ 動畫清單 ★★★
+        // ★★★ 更新後的動畫清單 ★★★
         const animationPool = [
             "Emos Spin.json",
             "Monitor screen with video game level up.json",
@@ -368,7 +370,9 @@
             "Target.json",
             "Super Mario.json",
             "football Goal.json",
-            "Formula One.json"
+            "Formula One.json",
+            "Lottery icon.json",           // 新增
+            "coupon reward envelope.json"  // 新增
         ];
         
         const retroIcons = ["👾", "🚀", "🍄", "⭐", "🦖", "👻", "💎", "💣", "🎮", "📀", "🔋", "⚔️"];
@@ -399,19 +403,30 @@
         }
         initDebugSelect();
 
+        // ★★★ 設定 Lottie 背景色的輔助函式 ★★★
+        function setLottieBackground(animName) {
+            // 如果是 football Goal.json，改為白底，否則黑底
+            if (animName === "football Goal.json") {
+                tvLottie.style.backgroundColor = "#ffffff";
+            } else {
+                tvLottie.style.backgroundColor = "#000000";
+            }
+        }
+
         // ★★★ 即時預覽 & 選擇邏輯 ★★★
         function previewAnimation() {
             const selected = animSelect.value;
             if (selected === "random") {
-                // 如果切回隨機，恢復待機畫面
                 if (!isDrawing) resetBtn();
                 return;
             }
             
-            // 如果是在待機或抽獎中，立即切換動畫顯示
             gameCanvas.style.display = 'none';
             tvLottie.style.display = 'block';
             tvLoading.style.display = 'none';
+            
+            // 設定背景並載入
+            setLottieBackground(selected);
             tvLottie.load(encodeURIComponent(selected));
             tvLottie.play();
         }
@@ -485,7 +500,6 @@
             isDrawing = false; drawBtn.disabled = false; drawBtn.innerText = "SPIN"; 
             animState = 'idle';
             
-            // 只有在不是預覽模式時才切回文字
             if (animSelect.value === 'random') {
                 gameCanvas.style.display = 'block'; 
                 tvLottie.style.display = 'none';
@@ -499,7 +513,6 @@
         function startRolling() {
             animState = 'rolling';
             
-            // UI 切換
             gameCanvas.style.display = 'none';
             tvLottie.style.display = 'none';
             tvLoading.style.display = 'block';
@@ -509,12 +522,13 @@
             const selected = animSelect.value;
             
             if (selected === "random") {
-                // 隨機選
                 targetAnim = animationPool[Math.floor(Math.random() * animationPool.length)];
             } else {
-                // 指定選
                 targetAnim = selected;
             }
+
+            // ★★★ 設定背景顏色 ★★★
+            setLottieBackground(targetAnim);
 
             // 載入並播放
             tvLottie.load(encodeURIComponent(targetAnim));
@@ -554,7 +568,6 @@
         function resize() { cvs.width = cvs.parentElement.offsetWidth; cvs.height = cvs.parentElement.offsetHeight; }
         
         function loop() {
-            // 如果選單指定了動畫，或者正在抽獎，就不要繪製 Canvas 文字
             if (animState !== 'idle' || (animSelect.value !== 'random' && !isDrawing)) { 
                 requestAnimationFrame(loop); return; 
             }
