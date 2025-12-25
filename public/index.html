@@ -182,7 +182,8 @@
             border: 4px solid #111;
             box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
             display: flex; justify-content: center; align-items: center;
-            transition: background-color 0.5s; /* 背景色切換動畫 */
+            /* 讓背景色切換有動畫 */
+            transition: background-color 0.5s; 
         }
         
         .screen-area::after {
@@ -198,7 +199,6 @@
         #tv-lottie-player { 
             width: 100%; height: 100%; 
             position: absolute; top:0; left:0; 
-            /* background 屬性會由 JS 動態控制 */
             z-index: 10;
             display: none; 
         }
@@ -376,7 +376,7 @@
             if (isMusicOn) bgmAudio.play().catch(()=>{});
         }
 
-        // ★★★ 更新後的動畫清單 (含所有10個) ★★★
+        // ★★★ 1. 完整動畫清單 (10個) ★★★
         const animationPool = [
             "Emos Spin.json",
             "Monitor screen with video game level up.json",
@@ -418,24 +418,24 @@
         }
         initDebugSelect();
 
-        // ★★★ 設定動畫屬性 (速度、循環、背景) ★★★
+        // ★★★ 2. 設定動畫屬性與背景 (關鍵修正) ★★★
         function configureLottie(animName) {
-            // 1. 重置預設值
+            // 重置預設值
             tvLottie.style.backgroundColor = "#000000";
             tvLottie.speed = 1;
             tvLottie.loop = true;
 
-            // 2. 特殊規則
+            // football Goal.json 特殊處理：白底
             if (animName === "football Goal.json") {
-                tvLottie.style.backgroundColor = "#ffffff"; // 白底
+                tvLottie.style.backgroundColor = "#ffffff"; 
             }
             
             if (animName === "Target.json") {
-                tvLottie.speed = 0.5; // 放慢
+                tvLottie.speed = 0.5;
             }
         }
 
-        // ★★★ 即時預覽 & 選擇邏輯 ★★★
+        // ★★★ 手動選擇預覽 ★★★
         function previewAnimation() {
             const selected = animSelect.value;
             if (selected === "random") {
@@ -447,7 +447,7 @@
             tvLottie.style.display = 'block';
             tvLoading.style.display = 'none';
             
-            // 套用設定並載入
+            // 這裡必須呼叫 configureLottie 才能變色
             configureLottie(selected);
             tvLottie.load(encodeURIComponent(selected));
             tvLottie.play();
@@ -490,7 +490,6 @@
                 loginPage.style.display = 'none';
                 gamePage.classList.add('active');
                 initCanvas();
-                // 進入主控台時開始播放音樂
                 if(isMusicOn) bgmAudio.play().catch(()=>{});
             }, 500);
         }
@@ -503,8 +502,6 @@
 
             const count = parseInt(document.getElementById('draw-count').value) || 1;
             isDrawing = true; drawBtn.disabled = true;
-            
-            // 抽獎時暫停音樂，專注於音效
             if(isMusicOn) bgmAudio.pause();
 
             for(let i=0; i<count; i++) {
@@ -525,7 +522,6 @@
             isDrawing = false; drawBtn.disabled = false; drawBtn.innerText = "SPIN"; 
             animState = 'idle';
             
-            // 只有在隨機模式下才恢復文字介面，避免干擾預覽
             if (animSelect.value === 'random') {
                 gameCanvas.style.display = 'block'; 
                 tvLottie.style.display = 'none';
@@ -533,7 +529,6 @@
             }
             tvLoading.style.display = 'none';
             
-            // 恢復音樂播放
             if(isMusicOn) bgmAudio.play().catch(()=>{});
         }
 
@@ -544,7 +539,6 @@
             tvLottie.style.display = 'none';
             tvLoading.style.display = 'block';
 
-            // ★★★ 決定動畫 ★★★
             let targetAnim = "";
             const selected = animSelect.value;
             
@@ -554,8 +548,10 @@
                 targetAnim = selected;
             }
 
-            // ★★★ 套用設定並播放 ★★★
+            // ★★★ 在這裡呼叫設定函式，確保背景色正確 ★★★
             configureLottie(targetAnim);
+            
+            // 載入並播放
             tvLottie.load(encodeURIComponent(targetAnim));
 
             setTimeout(() => {
@@ -578,7 +574,6 @@
             tvLottie.pause();
             winnerModal.classList.add('active');
             
-            // 中獎時恢復背景音樂
             if(isMusicOn) bgmAudio.play().catch(()=>{});
             playWinSound(); speak("恭喜 " + name); fireConfetti();
         }
@@ -594,7 +589,6 @@
         function resize() { cvs.width = cvs.parentElement.offsetWidth; cvs.height = cvs.parentElement.offsetHeight; }
         
         function loop() {
-            // 如果選單指定了動畫，或者正在抽獎，就不要繪製文字
             if (animState !== 'idle' || (animSelect.value !== 'random' && !isDrawing)) { 
                 requestAnimationFrame(loop); return; 
             }
