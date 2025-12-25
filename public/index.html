@@ -346,14 +346,14 @@
 
         // ★★★ 2. 設定動畫屬性與背景 (關鍵修正) ★★★
         function configureLottie(animName) {
-            // 重置預設值
+            // 1. 重置預設值
             tvLottie.style.backgroundColor = "#000000";
             if (screenArea) screenArea.style.backgroundColor = "#000000";
             
             tvLottie.speed = 1;
             tvLottie.loop = true;
 
-            // football Goal.json 特殊處理：白底
+            // 2. 特殊規則
             if (animName === "football Goal.json") {
                 tvLottie.style.backgroundColor = "#ffffff";
                 if (screenArea) screenArea.style.backgroundColor = "#ffffff"; // 電視背景也轉白
@@ -419,7 +419,6 @@
                 loginPage.style.display = 'none';
                 gamePage.classList.add('active');
                 initCanvas();
-                // 進入主控台時開始播放音樂
                 if(isMusicOn) bgmAudio.play().catch(()=>{});
             }, 500);
         }
@@ -433,7 +432,7 @@
             const count = parseInt(document.getElementById('draw-count').value) || 1;
             isDrawing = true; drawBtn.disabled = true;
             
-            // 抽獎時暫停音樂，專注於音效
+            // 抽獎時暫停音樂
             if(isMusicOn) bgmAudio.pause();
 
             for(let i=0; i<count; i++) {
@@ -459,8 +458,8 @@
                 tvLottie.style.display = 'none';
                 tvLottie.stop();
                 // 重置背景為黑
-                tvLottie.style.backgroundColor = "#000";
-                if(screenArea) screenArea.style.backgroundColor = "#000";
+                tvLottie.style.backgroundColor = "#000000";
+                if(screenArea) screenArea.style.backgroundColor = "#000000";
             }
             tvLoading.style.display = 'none';
             
@@ -504,7 +503,10 @@
         function showWinner(name) {
             animState = 'idle';
             winnerNameEl.innerText = name;
+            
+            // 中獎後停止動畫播放
             tvLottie.pause();
+            
             winnerModal.classList.add('active');
             
             if(isMusicOn) bgmAudio.play().catch(()=>{});
@@ -522,6 +524,7 @@
         function resize() { cvs.width = cvs.parentElement.offsetWidth; cvs.height = cvs.parentElement.offsetHeight; }
         
         function loop() {
+            // 如果選單指定了動畫，或者正在抽獎，就不要繪製文字
             if (animState !== 'idle' || (animSelect.value !== 'random' && !isDrawing)) { 
                 requestAnimationFrame(loop); return; 
             }
