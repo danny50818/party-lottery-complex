@@ -34,69 +34,43 @@
         /* --- 除錯控制面板 --- */
         #debug-panel {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 10px; right: 10px;
             background: rgba(0, 0, 0, 0.9);
             border: 2px solid #00ff00;
             padding: 10px;
             z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            display: flex; flex-direction: column; gap: 5px;
             box-shadow: 0 0 10px #00ff00;
         }
-        
-        #debug-panel label {
-            color: #00ff00;
-            font-size: 10px;
-            margin-bottom: 2px;
-        }
-
+        #debug-panel label { color: #00ff00; font-size: 10px; margin-bottom: 2px; }
         #anim-select {
-            background: #003300;
-            color: #00ff00;
-            border: 1px solid #00ff00;
-            font-family: monospace;
-            font-size: 12px;
-            padding: 5px;
-            width: 250px;
-            cursor: pointer;
+            background: #003300; color: #00ff00; border: 1px solid #00ff00;
+            font-family: monospace; font-size: 12px; padding: 5px;
+            width: 250px; cursor: pointer;
         }
-        
-        #anim-select:focus {
-            outline: none;
-            background: #005500;
-        }
+        #anim-select:focus { outline: none; background: #005500; }
 
         /* --- 背景 (Super Mario Style) --- */
         .game-world {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 0; overflow: hidden;
         }
-        
         .pixel-cloud {
             position: absolute; background: #fff; width: 60px; height: 20px;
             box-shadow: 20px 0 #fff, 10px -20px #fff, 40px 0 #fff;
             opacity: 0.9; animation: drift linear infinite;
         }
         @keyframes drift { from { left: -150px; } to { left: 110%; } }
-
         .hills {
             position: absolute; bottom: 80px; left: 0; width: 100%; height: 200px;
-            background: 
-                radial-gradient(circle at 50% 100%, #00A800 20%, transparent 21%),
-                radial-gradient(circle at 10% 100%, #008800 15%, transparent 16%);
+            background: radial-gradient(circle at 50% 100%, #00A800 20%, transparent 21%), radial-gradient(circle at 10% 100%, #008800 15%, transparent 16%);
             background-size: 300px 200px;
         }
-
         .ground-layer {
             position: absolute; bottom: 0; width: 100%; height: 80px;
             background-color: var(--ground-orange);
-            background-image: 
-                linear-gradient(335deg, rgba(0,0,0,0.1) 23px, transparent 23px),
-                linear-gradient(155deg, rgba(0,0,0,0.1) 23px, transparent 23px);
-            background-size: 58px 58px;
-            border-top: 4px solid #000;
+            background-image: linear-gradient(335deg, rgba(0,0,0,0.1) 23px, transparent 23px), linear-gradient(155deg, rgba(0,0,0,0.1) 23px, transparent 23px);
+            background-size: 58px 58px; border-top: 4px solid #000;
         }
 
         /* --- UI 通用 --- */
@@ -107,125 +81,82 @@
 
         /* --- 1. 登入頁 --- */
         #login-page { padding-top: 40px; transition: opacity 0.5s; justify-content: flex-start; }
-
         .header-panel {
-            background: #fff;
-            border: 4px solid #000;
-            padding: 20px 40px;
+            background: #fff; border: 4px solid #000; padding: 20px 40px;
             display: flex; gap: 30px; align-items: center;
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-            border-radius: 10px;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.2); margin-bottom: 30px; border-radius: 10px;
         }
-
         .qr-frame { background: #000; padding: 5px; }
         #qr-img { width: 120px; height: 120px; display: block; background: #fff; image-rendering: pixelated; }
-
         .info-block { text-align: left; }
-        .scan-text { 
-            color: #000; font-size: 1.5rem; margin-bottom: 10px; 
-            animation: bounce 1s infinite alternate; 
-        }
+        .scan-text { color: #000; font-size: 1.5rem; margin-bottom: 10px; animation: bounce 1s infinite alternate; }
         @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-5px); } }
-
         .player-count-label { color: #555; font-size: 0.8rem; margin-top: 10px; }
         .player-count-num { font-size: 1.5rem; color: #E60012; text-shadow: 2px 2px 0 #000; }
-
         .btn-start {
             margin-top: 15px; padding: 10px 20px; font-family: inherit; font-size: 1rem;
             background: #00AA00; color: #fff; border: 4px solid #000; cursor: pointer;
             box-shadow: 4px 4px 0 #000; transition: transform 0.1s;
         }
         .btn-start:active { transform: translate(4px, 4px); box-shadow: none; }
-
-        /* 玩家網格 */
+        
         .player-grid {
             width: 90%; max-width: 1200px; flex: 1; 
             display: flex; flex-wrap: wrap; align-content: flex-start; gap: 15px;
             overflow-y: auto; padding: 10px; margin-bottom: 90px;
         }
-        
         .char-box {
-            width: 90px; height: 90px;
-            background: #fff; border: 4px solid #000;
+            width: 90px; height: 90px; background: #fff; border: 4px solid #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
-            animation: spawn 0.3s forwards; transform: scale(0);
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.2); animation: spawn 0.3s forwards; transform: scale(0);
         }
         @keyframes spawn { to { transform: scale(1); } }
-        
         .char-icon { font-size: 2.5rem; margin-bottom: 5px; }
         .char-name { font-size: 0.6rem; color: #000; text-align: center; word-break: break-all; font-family: 'Noto Sans TC'; }
 
         /* --- 2. 抽獎主畫面 (電視機) --- */
         #game-page { display: none; opacity: 0; justify-content: center; }
         #game-page.active { display: flex; opacity: 1; }
-
         .machine-container { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
         
-        /* 復古電視機外框 */
         .tv-frame {
             width: 85%; max-width: 900px; height: 500px;
-            background-color: #333;
-            border-radius: 30px;
-            padding: 30px;
+            background-color: #333; border-radius: 30px; padding: 30px;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 10px 10px 0 rgba(0,0,0,0.3);
-            position: relative;
-            display: flex; flex-direction: column; align-items: center;
-            border: 4px solid #111;
+            position: relative; display: flex; flex-direction: column; align-items: center; border: 4px solid #111;
         }
-
         .screen-area {
             width: 100%; height: 100%; background: #000;
-            border-radius: 60px / 20px;
-            position: relative; overflow: hidden;
-            border: 4px solid #111;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            border-radius: 60px / 20px; position: relative; overflow: hidden;
+            border: 4px solid #111; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
             display: flex; justify-content: center; align-items: center;
-            /* 讓背景色切換有動畫 */
-            transition: background-color 0.5s; 
+            transition: background-color 0.5s;
         }
-        
         .screen-area::after {
             content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
             background-size: 100% 4px; pointer-events: none; z-index: 99;
         }
 
-        /* 內容層 */
         #game-canvas { width: 100%; height: 100%; image-rendering: pixelated; position: absolute; top:0; left:0; z-index: 5;}
-        
-        /* Lottie 層 (初始隱藏) */
-        #tv-lottie-player { 
-            width: 100%; height: 100%; 
-            position: absolute; top:0; left:0; 
-            z-index: 10;
-            display: none; 
-        }
-
-        /* 讀取畫面 (填補黑屏) */
+        #tv-lottie-player { width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 10; display: none; }
         #tv-loading {
-            position: absolute; z-index: 8;
-            color: #00ff00; font-size: 1.5rem;
-            display: none;
-            text-align: center;
-            animation: blink 0.5s infinite;
+            position: absolute; z-index: 8; color: #00ff00; font-size: 1.5rem;
+            display: none; text-align: center; animation: blink 0.5s infinite;
         }
         #tv-loading span { display: block; font-size: 3rem; margin-bottom: 10px; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* 控制台 */
         .control-bar {
             width: 100%; background: #222; padding: 20px;
             display: flex; justify-content: center; gap: 20px; align-items: center;
             border-top: 4px solid #fff; z-index: 20; flex-wrap: wrap; box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
         }
-        
         .nes-input-group { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 0.8rem; }
         .nes-input { background: #000; border: 2px solid #fff; color: #fff; font-family: inherit; font-size: 1rem; width: 60px; text-align: center; outline: none; }
         .credits-text { width: 100%; text-align: center; color: var(--text-gold); margin-top: 10px; font-size: 0.8rem; text-shadow: 2px 2px 0 #000; }
 
-        /* --- 3. 中獎彈窗 (簡化版) --- */
+        /* --- 3. 中獎彈窗 --- */
         #winner-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 100;
@@ -233,16 +164,12 @@
             padding-bottom: 50px;
         }
         #winner-modal.active { display: flex; }
-
         .winner-panel {
-            background: #fff; border: 4px solid #000;
-            padding: 40px 80px; text-align: center; position: relative;
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.5);
-            animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: #fff; border: 4px solid #000; padding: 40px 80px; text-align: center; position: relative;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.5); animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin-bottom: 20px; min-width: 300px;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
         .winner-header { color: #E60012; font-size: 1.5rem; margin-bottom: 20px; }
         .winner-trophy { font-size: 4rem; margin-bottom: 10px; display: block; }
         .winner-name { font-size: 3.5rem; color: #000; margin: 10px 0 30px 0; text-shadow: 2px 2px 0 #ccc; }
@@ -254,18 +181,16 @@
         .manage-list { flex: 1; overflow-y: auto; border: 2px solid #000; margin: 15px 0; font-family: 'Noto Sans TC'; }
         .manage-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px dashed #ccc; align-items: center; }
         .excluded { text-decoration: line-through; color: #999; }
-
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1500; }
     </style>
 </head>
 <body>
 
-    <!-- 除錯/控制面板 (右上角) -->
+    <!-- 除錯控制面板 -->
     <div id="debug-panel">
         <label>ANIMATION DEBUG:</label>
         <select id="anim-select" onchange="previewAnimation()">
             <option value="random">⚡ RANDOM MODE (Default)</option>
-            <!-- JS 會自動填入其他選項 -->
         </select>
     </div>
 
@@ -406,6 +331,7 @@
         const tvLottie = document.getElementById('tv-lottie-player');
         const tvLoading = document.getElementById('tv-loading');
         const animSelect = document.getElementById('anim-select');
+        const screenArea = document.querySelector('.screen-area');
 
         // 初始化下拉選單
         function initDebugSelect() {
@@ -422,16 +348,19 @@
         function configureLottie(animName) {
             // 重置預設值
             tvLottie.style.backgroundColor = "#000000";
+            if (screenArea) screenArea.style.backgroundColor = "#000000";
+            
             tvLottie.speed = 1;
             tvLottie.loop = true;
 
             // football Goal.json 特殊處理：白底
             if (animName === "football Goal.json") {
-                tvLottie.style.backgroundColor = "#ffffff"; 
+                tvLottie.style.backgroundColor = "#ffffff";
+                if (screenArea) screenArea.style.backgroundColor = "#ffffff"; // 電視背景也轉白
             }
             
             if (animName === "Target.json") {
-                tvLottie.speed = 0.5;
+                tvLottie.speed = 0.5; // 放慢
             }
         }
 
@@ -447,7 +376,7 @@
             tvLottie.style.display = 'block';
             tvLoading.style.display = 'none';
             
-            // 這裡必須呼叫 configureLottie 才能變色
+            // 套用設定並載入
             configureLottie(selected);
             tvLottie.load(encodeURIComponent(selected));
             tvLottie.play();
@@ -490,6 +419,7 @@
                 loginPage.style.display = 'none';
                 gamePage.classList.add('active');
                 initCanvas();
+                // 進入主控台時開始播放音樂
                 if(isMusicOn) bgmAudio.play().catch(()=>{});
             }, 500);
         }
@@ -502,6 +432,8 @@
 
             const count = parseInt(document.getElementById('draw-count').value) || 1;
             isDrawing = true; drawBtn.disabled = true;
+            
+            // 抽獎時暫停音樂，專注於音效
             if(isMusicOn) bgmAudio.pause();
 
             for(let i=0; i<count; i++) {
@@ -526,6 +458,9 @@
                 gameCanvas.style.display = 'block'; 
                 tvLottie.style.display = 'none';
                 tvLottie.stop();
+                // 重置背景為黑
+                tvLottie.style.backgroundColor = "#000";
+                if(screenArea) screenArea.style.backgroundColor = "#000";
             }
             tvLoading.style.display = 'none';
             
@@ -548,10 +483,8 @@
                 targetAnim = selected;
             }
 
-            // ★★★ 在這裡呼叫設定函式，確保背景色正確 ★★★
+            // ★★★ 設定背景與播放 ★★★
             configureLottie(targetAnim);
-            
-            // 載入並播放
             tvLottie.load(encodeURIComponent(targetAnim));
 
             setTimeout(() => {
