@@ -182,7 +182,6 @@
             border: 4px solid #111;
             box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
             display: flex; justify-content: center; align-items: center;
-            transition: background-color 0.5s; /* 背景色切換動畫 */
         }
         
         .screen-area::after {
@@ -301,7 +300,7 @@
                     <canvas id="game-canvas"></canvas>
                     
                     <!-- 抽獎動畫 -->
-                    <lottie-player id="tv-lottie-player" speed="1" loop autoplay></lottie-player>
+                    <lottie-player id="tv-lottie-player" background="#000" speed="1" loop autoplay></lottie-player>
                     
                     <!-- 讀取畫面 -->
                     <div id="tv-loading">
@@ -361,7 +360,7 @@
         bgmAudio.loop = true; bgmAudio.volume = 0.3;
         let isMusicOn = true;
 
-        // ★★★ 更新後的動畫清單 ★★★
+        // ★★★ 更新後的動畫清單 (含所有10個) ★★★
         const animationPool = [
             "Emos Spin.json",
             "Monitor screen with video game level up.json",
@@ -371,8 +370,8 @@
             "Super Mario.json",
             "football Goal.json",
             "Formula One.json",
-            "Lottery icon.json",           // 新增
-            "coupon reward envelope.json"  // 新增
+            "Lottery icon.json",           
+            "coupon reward envelope.json"  
         ];
         
         const retroIcons = ["👾", "🚀", "🍄", "⭐", "🦖", "👻", "💎", "💣", "🎮", "📀", "🔋", "⚔️"];
@@ -403,13 +402,20 @@
         }
         initDebugSelect();
 
-        // ★★★ 設定 Lottie 背景色的輔助函式 ★★★
-        function setLottieBackground(animName) {
-            // 如果是 football Goal.json，改為白底，否則黑底
+        // ★★★ 設定動畫屬性 (速度、循環、背景) ★★★
+        function configureLottie(animName) {
+            // 1. 重置預設值
+            tvLottie.style.backgroundColor = "#000000";
+            tvLottie.speed = 1;
+            tvLottie.loop = true;
+
+            // 2. 特殊規則
             if (animName === "football Goal.json") {
-                tvLottie.style.backgroundColor = "#ffffff";
-            } else {
-                tvLottie.style.backgroundColor = "#000000";
+                tvLottie.style.backgroundColor = "#ffffff"; // 白底
+            }
+            
+            if (animName === "Target.json") {
+                tvLottie.speed = 0.5; // 放慢
             }
         }
 
@@ -425,8 +431,8 @@
             tvLottie.style.display = 'block';
             tvLoading.style.display = 'none';
             
-            // 設定背景並載入
-            setLottieBackground(selected);
+            // 套用設定並載入
+            configureLottie(selected);
             tvLottie.load(encodeURIComponent(selected));
             tvLottie.play();
         }
@@ -500,6 +506,7 @@
             isDrawing = false; drawBtn.disabled = false; drawBtn.innerText = "SPIN"; 
             animState = 'idle';
             
+            // 只有在隨機模式下才恢復文字介面，避免干擾預覽
             if (animSelect.value === 'random') {
                 gameCanvas.style.display = 'block'; 
                 tvLottie.style.display = 'none';
@@ -517,7 +524,7 @@
             tvLottie.style.display = 'none';
             tvLoading.style.display = 'block';
 
-            // ★★★ 決定要播哪個動畫 ★★★
+            // ★★★ 決定動畫 ★★★
             let targetAnim = "";
             const selected = animSelect.value;
             
@@ -527,10 +534,8 @@
                 targetAnim = selected;
             }
 
-            // ★★★ 設定背景顏色 ★★★
-            setLottieBackground(targetAnim);
-
-            // 載入並播放
+            // ★★★ 套用設定並播放 ★★★
+            configureLottie(targetAnim);
             tvLottie.load(encodeURIComponent(targetAnim));
 
             setTimeout(() => {
@@ -568,6 +573,7 @@
         function resize() { cvs.width = cvs.parentElement.offsetWidth; cvs.height = cvs.parentElement.offsetHeight; }
         
         function loop() {
+            // 如果選單指定了動畫，或者正在抽獎，就不要繪製文字
             if (animState !== 'idle' || (animSelect.value !== 'random' && !isDrawing)) { 
                 requestAnimationFrame(loop); return; 
             }
