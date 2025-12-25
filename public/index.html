@@ -31,6 +31,43 @@
             user-select: none;
         }
 
+        /* --- 除錯控制面板 (升級版) --- */
+        #debug-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            padding: 10px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        #debug-panel label {
+            color: #00ff00;
+            font-size: 10px;
+            margin-bottom: 2px;
+        }
+
+        #anim-select {
+            background: #003300;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 5px;
+            width: 250px;
+            cursor: pointer;
+        }
+        
+        #anim-select:focus {
+            outline: none;
+            background: #005500;
+        }
+
         /* --- 背景 (Super Mario Style) --- */
         .game-world {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -164,7 +201,7 @@
             display: none; /* 預設不顯示 */
         }
 
-        /* ★★★ 讀取畫面 (填補黑屏) ★★★ */
+        /* 讀取畫面 (填補黑屏) */
         #tv-loading {
             position: absolute; z-index: 8;
             color: #00ff00; font-size: 1.5rem;
@@ -173,6 +210,7 @@
             animation: blink 0.5s infinite;
         }
         #tv-loading span { display: block; font-size: 3rem; margin-bottom: 10px; }
+        @keyframes blink { 50% { opacity: 0; } }
 
         /* 控制台 */
         .control-bar {
@@ -185,7 +223,7 @@
         .nes-input { background: #000; border: 2px solid #fff; color: #fff; font-family: inherit; font-size: 1rem; width: 60px; text-align: center; outline: none; }
         .credits-text { width: 100%; text-align: center; color: var(--text-gold); margin-top: 10px; font-size: 0.8rem; text-shadow: 2px 2px 0 #000; }
 
-        /* --- 3. 中獎彈窗 (純文字) --- */
+        /* --- 3. 中獎彈窗 (簡化版) --- */
         #winner-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 100;
@@ -220,6 +258,15 @@
 </head>
 <body>
 
+    <!-- 除錯/控制面板 (右上角) -->
+    <div id="debug-panel">
+        <label>ANIMATION DEBUG:</label>
+        <select id="anim-select" onchange="previewAnimation()">
+            <option value="random">⚡ RANDOM MODE (Default)</option>
+            <!-- JS 會自動填入其他選項 -->
+        </select>
+    </div>
+
     <div class="game-world">
         <div class="pixel-cloud" style="top: 10%; animation-duration: 25s;"></div>
         <div class="pixel-cloud" style="top: 30%; animation-duration: 40s; transform: scale(1.5);"></div>
@@ -248,13 +295,13 @@
         <div class="machine-container">
             <div class="tv-frame">
                 <div class="screen-area">
-                    <!-- 待機文字 (INSERT COIN) -->
+                    <!-- 待機文字 -->
                     <canvas id="game-canvas"></canvas>
                     
-                    <!-- 抽獎動畫 (Lottie) -->
+                    <!-- 抽獎動畫 -->
                     <lottie-player id="tv-lottie-player" background="#000" speed="1" loop autoplay></lottie-player>
                     
-                    <!-- ★★★ 讀取畫面 (填補黑屏) ★★★ -->
+                    <!-- 讀取畫面 -->
                     <div id="tv-loading">
                         <span>⌛</span>
                         LOADING...
@@ -312,8 +359,7 @@
         bgmAudio.loop = true; bgmAudio.volume = 0.3;
         let isMusicOn = true;
 
-        // ★★★ 隨機動畫庫 (8個檔案) ★★★
-        // 請確保這些檔案已上傳至 public/
+        // ★★★ 動畫清單 ★★★
         const animationPool = [
             "Emos Spin.json",
             "Monitor screen with video game level up.json",
@@ -340,7 +386,37 @@
         const gameCanvas = document.getElementById('game-canvas');
         const tvLottie = document.getElementById('tv-lottie-player');
         const tvLoading = document.getElementById('tv-loading');
+        const animSelect = document.getElementById('anim-select');
 
+        // 初始化下拉選單
+        function initDebugSelect() {
+            animationPool.forEach(file => {
+                const opt = document.createElement('option');
+                opt.value = file;
+                opt.innerText = file;
+                animSelect.appendChild(opt);
+            });
+        }
+        initDebugSelect();
+
+        // ★★★ 即時預覽 & 選擇邏輯 ★★★
+        function previewAnimation() {
+            const selected = animSelect.value;
+            if (selected === "random") {
+                // 如果切回隨機，恢復待機畫面
+                if (!isDrawing) resetBtn();
+                return;
+            }
+            
+            // 如果是在待機或抽獎中，立即切換動畫顯示
+            gameCanvas.style.display = 'none';
+            tvLottie.style.display = 'block';
+            tvLoading.style.display = 'none';
+            tvLottie.load(encodeURIComponent(selected));
+            tvLottie.play();
+        }
+
+        // QR Code
         const mobileUrl = window.location.origin + "/mobile.html";
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(mobileUrl)}`;
 
@@ -395,11 +471,7 @@
                 drawBtn.innerText = `DRAW ${i+1}/${count}`;
                 await new Promise(resolve => {
                     socket.emit('admin_start_rolling');
-                    
-                    // ★★★ 啟動抽獎畫面 ★★★
                     startRolling();
-                    
-                    // ★★★ 延長至 5 秒，確保動畫有時間播放 ★★★
                     setTimeout(() => { socket.emit('admin_perform_draw'); resolve(); }, 5000);
                 });
                 await new Promise(r => drawResolver = r);
@@ -413,10 +485,13 @@
             isDrawing = false; drawBtn.disabled = false; drawBtn.innerText = "SPIN"; 
             animState = 'idle';
             
-            gameCanvas.style.display = 'block'; // 顯示 INSERT COIN
-            tvLottie.style.display = 'none';
+            // 只有在不是預覽模式時才切回文字
+            if (animSelect.value === 'random') {
+                gameCanvas.style.display = 'block'; 
+                tvLottie.style.display = 'none';
+                tvLottie.stop();
+            }
             tvLoading.style.display = 'none';
-            tvLottie.stop();
             
             if(isMusicOn) bgmAudio.play().catch(()=>{});
         }
@@ -424,26 +499,32 @@
         function startRolling() {
             animState = 'rolling';
             
-            // 1. 隱藏待機文字，顯示 Loading
+            // UI 切換
             gameCanvas.style.display = 'none';
             tvLottie.style.display = 'none';
             tvLoading.style.display = 'block';
 
-            // 2. 隨機選一個動畫
-            const randomAnim = animationPool[Math.floor(Math.random() * animationPool.length)];
+            // ★★★ 決定要播哪個動畫 ★★★
+            let targetAnim = "";
+            const selected = animSelect.value;
             
-            // 3. 處理檔名空格並載入 (確保路徑正確)
-            tvLottie.load(encodeURIComponent(randomAnim));
+            if (selected === "random") {
+                // 隨機選
+                targetAnim = animationPool[Math.floor(Math.random() * animationPool.length)];
+            } else {
+                // 指定選
+                targetAnim = selected;
+            }
 
-            // 4. 監聽載入完成事件，或延遲顯示
-            // 簡單做法：延遲 0.8 秒後顯示動畫，隱藏 Loading
+            // 載入並播放
+            tvLottie.load(encodeURIComponent(targetAnim));
+
             setTimeout(() => {
                 tvLoading.style.display = 'none';
                 tvLottie.style.display = 'block';
                 tvLottie.play();
             }, 800);
 
-            // 5. 聲音加速特效
             const s = Date.now();
             const tick = () => {
                 if(animState!=='rolling') return;
@@ -455,8 +536,6 @@
         function showWinner(name) {
             animState = 'idle';
             winnerNameEl.innerText = name;
-            
-            // ★★★ 停止動畫，顯示中獎彈窗 ★★★
             tvLottie.pause();
             winnerModal.classList.add('active');
             
@@ -469,14 +548,16 @@
             if(drawResolver) { drawResolver(); drawResolver = null; } else { resetBtn(); }
         }
 
-        // Canvas (待機畫面)
         const cvs = document.getElementById('game-canvas');
         const ctx = cvs.getContext('2d');
         function initCanvas() { resize(); window.addEventListener('resize', resize); loop(); }
         function resize() { cvs.width = cvs.parentElement.offsetWidth; cvs.height = cvs.parentElement.offsetHeight; }
         
         function loop() {
-            if (animState !== 'idle') { requestAnimationFrame(loop); return; }
+            // 如果選單指定了動畫，或者正在抽獎，就不要繪製 Canvas 文字
+            if (animState !== 'idle' || (animSelect.value !== 'random' && !isDrawing)) { 
+                requestAnimationFrame(loop); return; 
+            }
             
             ctx.clearRect(0,0,cvs.width,cvs.height);
             const cx = cvs.width/2; const cy = cvs.height/2;
